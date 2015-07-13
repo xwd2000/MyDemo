@@ -1,0 +1,129 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.NoTitleBar">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+
+    </style>
+
+    <!-- <item name="textColor">@color/common_text</item> -->
+    <!-- <item name="background">@drawable/common_title</item> -->
+    <!-- <item name="backButton">@drawable/common_title_back_selector</item> -->
+    <style name="TitleBar"></style>
+
+    <!-- old -->
+
+    <style name="setting_head_label">
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:textColor">@color/gray_text</item>
+        <item name="android:textSize">@dimen/setting_head_label_text_size</item>
+    </style>
+
+    <style name="setting_item_value">
+        <item name="android:textColor">@color/gray_text</item>
+        <item name="android:textSize">@dimen/setting_item_text_size</item>
+    </style>
+
+    <style name="setting_item_label">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/setting_item_text_size</item>
+    </style>
+
+    <style name="setting_item_block">
+        <item name="android:layout_margin">3dp</item>
+        <item name="android:background">@color/gray_bg</item>
+        <item name="android:padding">5dp</item>
+    </style>
+    <!-- end  old -->
+
+    <style name="menu_animation" mce_bogus="1" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/menu_drop_down</item>
+        <item name="android:windowExitAnimation">@anim/menu_drop_up</item>
+    </style>
+
+    <style name="title_bar_style">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/common_title_height</item>
+        <item name="android:background">@color/main_status_green</item>
+    </style>
+
+    <style name="title_bar_transparent_style">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/common_title_height</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="setting_head_icon">
+        <item name="android:layout_width">@dimen/setting_head_icon_width</item>
+        <item name="android:layout_height">@dimen/setting_head_icon_height</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+    </style>
+
+    <style name="setting_name">
+        <item name="android:textSize">@dimen/setting_name_text_size</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+    </style>
+
+    <style name="setting_item_block2">
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginBottom">6dp</item>
+    </style>
+
+    <style name="setting_item_value2">
+        <item name="android:textSize">@dimen/setting_item_text_size2</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_centerHorizontal">true</item>
+    </style>
+
+    <style name="setting_item_label2">
+        <item name="android:layout_marginLeft">24dp</item>
+        <item name="android:textSize">@dimen/setting_item_text_size2</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_centerVertical">true</item>
+    </style>
+
+    <style name="login_input_block">
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginRight">20dp</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">@color/login_input_block_background_color</item>
+    </style>
+
+    <style name="login_input_label">
+        <item name="android:layout_margin">15dp</item>
+        <item name="android:textSize">@dimen/login_input_label_text_size</item>
+        <item name="android:textColor">@color/login_input_label_text_color</item>
+    </style>
+
+    <style name="login_input_edit_text">
+        <item name="android:layout_marginLeft">15dp</item>
+        <item name="android:layout_marginRight">15dp</item>
+        <item name="android:textSize">@dimen/login_input_label_text_size</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+<!-- <item name="android:windowEnterAnimation">@anim/fade_up</item> -->
+
+<!-- <item name="android:windowExitAnimation">@anim/fade_down</item> -->
+    <style name="popwindowUpAnim">
+    </style>
+
+</resources>

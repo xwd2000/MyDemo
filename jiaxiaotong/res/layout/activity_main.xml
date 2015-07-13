@@ -1,0 +1,147 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:simpleclock="http://schemas.android.com/apk/res/com.hikvision.parentdotworry"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".MainActivity"
+    android:id="@+id/rl_main_frame" >
+
+    <com.hikvision.parentdotworry.costomui.TitleBar
+        android:id="@+id/tb_title_bar"
+        android:layout_width="match_parent"
+        
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" />
+	<TextView 
+	    android:id="@+id/tv_warm_bar"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center"
+	    android:background="@drawable/main_warm_text_view_background"
+	    android:text="@string/main_warm_network_unavliable"
+	    android:textColor="@color/darkgray"
+	    android:padding="7dp"
+	    android:layout_below="@+id/tb_title_bar"
+	    android:textSize="16sp"/>
+	 <Button
+        android:id="@+id/bt_setting0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tv_warm_bar"
+        android:background="@drawable/ic_launcher" />
+	  <Button
+        android:id="@+id/bt_setting1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_warm_bar"
+        android:layout_toRightOf="@+id/bt_setting0"
+        android:background="@drawable/play_balanced" />
+    <Button
+        android:id="@+id/bt_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tv_warm_bar"
+        android:background="@drawable/ic_launcher" />
+
+    <RelativeLayout
+        android:id="@+id/rl_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bt_setting"
+        android:layout_centerHorizontal="true" >
+
+        <com.hikvision.parentdotworry.costomui.SimpleClock
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/tv_clock_main_text"
+            android:text="@string/main_label_child_status" />
+
+        <TextView
+            android:id="@+id/tv_clock_main_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/main_notice_leave_school"
+            android:textSize="@dimen/clock_main_text_size" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_digital_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_clock"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_time_test"
+            android:textSize="@dimen/clock_digital_text_size" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_time_test_tail"
+            android:textSize="@dimen/clock_digital_text_tail_size" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_parent_warm_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_digital_time"
+        android:layout_centerHorizontal="true"
+        android:text="@string/parent_warm_message" />
+    <!-- <RelativeLayout -->
+    <!-- android:layout_width="match_parent" -->
+    <!-- android:layout_height="match_parent" -->
+    <!-- android:background="@color/azure" -->
+    <!-- android:layout_below="@+id/tv_parent_warm_message" -->
+    <!-- android:layout_above="@+id/ll_bottom_bar" -->
+    <!-- android:orientation="horizontal"> -->
+    <!-- <com.hikvision.parentdotworry.costomui.SquareLineButton -->
+    <!-- android:layout_width="wrap_content" -->
+    <!-- android:layout_height="wrap_content"/> -->
+    <!-- <com.hikvision.parentdotworry.costomui.SquareLineButton -->
+    <!-- android:layout_width="wrap_content" -->
+    <!-- android:layout_height="wrap_content" -->
+    <!-- /> -->
+    <!-- <com.hikvision.parentdotworry.costomui.BarClock -->
+    <!-- android:layout_width="300dp" -->
+    <!-- android:layout_height="40dp"/> -->
+    <!-- </RelativeLayout> -->
+
+    <com.hikvision.parentdotworry.costomui.TimeBar
+        android:id="@+id/tb_school_daily_bar"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_above="@+id/ll_bottom_bar"
+        android:layout_below="@+id/tv_parent_warm_message"
+        android:background="@color/azure" >
+    </com.hikvision.parentdotworry.costomui.TimeBar>
+
+    <LinearLayout
+        android:id="@+id/ll_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+</RelativeLayout>

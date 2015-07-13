@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SimpleClock">
+        <attr name="minute_hand_length" format="dimension"/>
+        <attr name="hand_color" format="reference|color"/>
+    </declare-styleable>
+</resources>

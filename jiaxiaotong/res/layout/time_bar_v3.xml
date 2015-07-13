@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <HorizontalScrollView
+        android:id="@+id/hsv_line_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+			<View
+			    android:id="@+id/v_scroll_extra_head"
+			    android:layout_width="0dp"
+            	android:layout_height="0dp"
+			    />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <RelativeLayout
+                    android:id="@+id/rl_line_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
+
+                    <ImageView
+                        android:id="@+id/iv_main_time_line"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginLeft="36dp"
+                        android:layout_marginRight="36dp"
+                        android:layout_marginTop="16dp"
+                        android:background="@color/main_time_line_background" 
+                        android:contentDescription="@null"/>
+
+                    <ImageView
+                        android:id="@+id/iv_main_time_line_need_in_school"
+                        android:layout_width="39dp"
+                        android:layout_height="4dp"
+                        android:background="@color/main_status_green"
+                        android:visibility="gone" 
+                        android:contentDescription="@null"/>
+
+                    <ImageView
+                        android:id="@+id/iv_main_small_circle1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/main_tip_circle_small"
+                        android:visibility="gone" 
+                        android:contentDescription="@null"/>
+
+                    <ImageView
+                        android:id="@+id/iv_main_small_circle2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/main_tip_circle_small"
+                        android:visibility="gone" 
+                        android:contentDescription="@null"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/rl_time_text_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
+
+                    <TextView
+                        android:id="@+id/tv_time_bar_school_time_in"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/main_time_test"
+                        android:visibility="gone" 
+                        android:layout_marginBottom="20dp"/>
+                </RelativeLayout>
+            </LinearLayout>
+            <View
+			    android:id="@+id/v_scroll_extra_tail"
+			    android:layout_width="0dp"
+            	android:layout_height="0dp"
+			    />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <com.hikvision.parentdotworry.costomui.ViewPagerInToughView
+        android:id="@+id/vp_main_pic_show"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp" />
+
+</LinearLayout>

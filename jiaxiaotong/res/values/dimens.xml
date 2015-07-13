@@ -1,0 +1,70 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <!--     old -->
+    <dimen name="activity_horizontal_margin">0dp</dimen>
+    <dimen name="activity_vertical_margin">0dp</dimen>
+    <dimen name="clock_main_text_size">35sp</dimen>
+    <dimen name="clock_digital_text_size">20sp</dimen>
+    <dimen name="clock_digital_text_tail_size">10sp</dimen>
+    <dimen name="loading_text_size">15dp</dimen>
+    <dimen name="button_text_size">14dp</dimen>
+    
+    
+    <dimen name="realplay_text_size">12dp</dimen>
+    <dimen name="realplay_tip_text_size">16dp</dimen>
+    <dimen name="realplay_channel_text_size">9dp</dimen>
+    <dimen name="realplay_button_text_size">15dp</dimen>
+    <dimen name="realplay_ratio_text_size">24dp</dimen>
+    
+
+    <dimen name="setting_head_label_text_size">20sp</dimen>
+    <dimen name="setting_item_text_size">17sp</dimen>
+<!--    end old -->
+    
+    
+    <dimen name="common_title_text_size">18sp</dimen>
+    <dimen name="common_title_height">44dp</dimen>
+    
+    
+    <dimen name="main_title_button_width_height">24dp</dimen>
+    <dimen name="main_time_text_size">26sp</dimen>
+    <dimen name="main_time_tail_text_size">14sp</dimen>
+    <dimen name="main_warm_text_size">17sp</dimen>
+    <dimen name="main_item_title_height">44dp</dimen>
+    <dimen name="main_item_title_icon_height">23dp</dimen>
+    <dimen name="main_item_title_icon_width">24dp</dimen>
+    <dimen name="main_item_title_margin_left">22dp</dimen>
+    <dimen name="main_item_title_text_size">16sp</dimen>
+    <dimen name="main_item_new_text_size">8sp</dimen>
+    <dimen name="main_item_time_text_size">12sp</dimen>
+    <dimen name="main_item_department_text_size">12sp</dimen>
+    <dimen name="main_item_margin_top">8dp</dimen>
+    <dimen name="main_line_padding_left_right">10dp</dimen>
+    
+    
+    <dimen name="message_list_item_pic_width">90dp</dimen>
+    <dimen name="message_list_item_pic_height">67dp</dimen>
+    <dimen name="message_list_item_title_text_size">16sp</dimen>
+    <dimen name="message_list_item_time_department_text_size">12sp</dimen>
+    
+    
+    <dimen name="message_detail_title_text_size">17sp</dimen>
+    <dimen name="message_detail_depart_time_text_size">12sp</dimen>
+    <dimen name="message_detail_main_padding">12dp</dimen>
+    
+    
+    <dimen name="setting_head_icon_width">54dp</dimen>
+    <dimen name="setting_head_icon_height">54dp</dimen>
+    <dimen name="setting_name_text_size">17dp</dimen>
+    <dimen name="setting_item_text_size2">16sp</dimen>
+    
+    
+    <dimen name="login_input_label_text_size">15sp</dimen>
+    <dimen name="login_app_name_text_size">19sp</dimen>
+    <dimen name="login_login_button_text_size">17sp</dimen>
+    
+   <dimen name="video_list_device_name_text_size">16sp</dimen>
+   <dimen name="video_list_item_padding_left_right">6dp</dimen>
+    
+</resources>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <com.hikvision.parentdotworry.costomui.TitleBar
+        android:id="@+id/tb_title_bar"
+        style="@style/title_bar_style" />
+
+    <com.handmark.pulltorefresh.library.PullToRefreshScrollView
+        android:id="@+id/sv_setting_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tb_title_bar" >
+
+        <LinearLayout
+            android:id="@+id/ll_setting_group_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:visibility="gone"
+            android:background="@color/setting_main_background_color" >
+
+            <LinearLayout
+                android:id="@+id/ll_setting_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"  
+                android:layout_marginBottom="12dp"
+                android:paddingBottom="20dp"
+    			android:background="@android:color/white">
+
+                <ImageView
+                    style="@style/setting_head_icon"
+                    android:contentDescription="@null"
+                    android:src="@drawable/parent_portrait" />
+
+                <TextView
+                    android:id="@+id/tv_parent_name"
+                    style="@style/setting_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <RelativeLayout
+                    style="@style/setting_item_block2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        style="@style/setting_item_label2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/setting_phone_label" />
+
+                    <TextView
+                        android:id="@+id/tv_parent_phone"
+                        style="@style/setting_item_value2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        
+                        android:gravity="right|center_horizontal" />
+                </RelativeLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </com.handmark.pulltorefresh.library.PullToRefreshScrollView>
+
+</RelativeLayout>

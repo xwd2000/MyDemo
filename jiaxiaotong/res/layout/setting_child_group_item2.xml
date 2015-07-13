@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_setting_group"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" 
+    android:paddingBottom="20dp"
+    android:background="@android:color/white">
+
+    <ImageView
+        style="@style/setting_head_icon"
+        android:contentDescription="@null"
+        android:src="@drawable/child_portrait" />
+
+    <TextView
+        android:id="@+id/tv_child_name"
+        style="@style/setting_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+ 
+
+    <RelativeLayout
+        style="@style/setting_item_block2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/setting_item_label2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/setting_school_label" />
+
+        <TextView
+            android:id="@+id/tv_child_school"
+            style="@style/setting_item_value2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        style="@style/setting_item_block2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        
+        <TextView
+            style="@style/setting_item_label2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/setting_class_label" />
+
+        <TextView
+            android:id="@+id/tv_child_class"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/setting_item_value2" />
+    </RelativeLayout>
+   <RelativeLayout
+        style="@style/setting_item_block2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/setting_item_label2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/setting_student_id_label" />
+
+        <TextView
+            android:id="@+id/tv_child_student_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            style="@style/setting_item_value2"/>
+    </RelativeLayout>
+</LinearLayout>
