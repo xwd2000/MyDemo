@@ -28,16 +28,16 @@ public class Cryptogram {
 
 	public static byte[] encrypt(String cleartext, String seed)
 			throws Exception {
-		byte[] rawKey = getRawKey(MD5.code(seed,16).getBytes());
-		byte[] result = encrypt(rawKey, cleartext.getBytes());
+		byte[] rawKey = getRawKey(MD5.code(seed,16).getBytes("UTF-8"));
+		byte[] result = encrypt(rawKey, cleartext.getBytes("UTF-8"));
 		return result;
 	}
 
 	public static String decrypt(byte[] encrypted, String seed)
 			throws Exception {
-		byte[] rawKey = getRawKey(MD5.code(seed,16).getBytes());
+		byte[] rawKey = getRawKey(MD5.code(seed,16).getBytes("UTF-8"));
 		byte[] result = decrypt(rawKey, encrypted);
-		return new String(result);
+		return new String(result,"UTF-8");
 
 	}
 

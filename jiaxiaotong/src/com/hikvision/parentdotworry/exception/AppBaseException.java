@@ -13,6 +13,12 @@ public class AppBaseException extends Exception{
 		this.error=error;
 		this.targetException=e;
 	}
+	
+	public AppBaseException(AppError error,String message){
+		super(message);
+		this.error=error;
+	}
+	
 	public AppError getError(){
 		return error;
 	}

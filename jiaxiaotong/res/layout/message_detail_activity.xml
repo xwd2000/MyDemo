@@ -24,6 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
                 android:textSize="@dimen/message_detail_title_text_size"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/message_detail_title_text_color"/>
@@ -36,21 +37,18 @@
 
             <TextView
                 android:id="@+id/tv_message_detail_page_time"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right" 
+                android:layout_gravity="center_vertical"
                 android:textColor="@color/message_detail_department_time_text_color"
                 android:textSize="@dimen/message_detail_depart_time_text_size"/>
 
             <TextView
                 android:id="@+id/tv_message_detail_page_department"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_weight="1"
-                android:gravity="left"
-                android:orientation="horizontal" 
+                android:layout_marginLeft="2dp"
+                android:layout_gravity="center_vertical"
                 android:textColor="@color/message_detail_department_time_text_color"
                 android:textSize="@dimen/message_detail_depart_time_text_size"/>
         </LinearLayout>
@@ -61,8 +59,16 @@
             android:layout_height="wrap_content" 
             android:layout_marginTop="16dp"
             android:scaleType="fitXY"
-            android:contentDescription="@null"/>
-
+            android:contentDescription="@null"
+            android:visibility="gone"/>
+  		<ImageView
+            android:id="@+id/iv_message_detail_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" 
+            android:layout_marginTop="16dp"
+            android:contentDescription="@null"
+            android:background="@color/main_status_green"
+            android:visibility="gone"/>
         <TextView
             android:id="@+id/tv_message_detail"
             android:layout_width="match_parent"

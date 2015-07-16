@@ -15,4 +15,7 @@ public class AppUserException extends AppBaseException{
 		super(error);
 	}
 
+	public AppUserException(AppError error,String message){
+		super(error,message);
+	}
 }

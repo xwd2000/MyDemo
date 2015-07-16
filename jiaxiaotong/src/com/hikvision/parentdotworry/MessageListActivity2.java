@@ -127,7 +127,7 @@ public class MessageListActivity2 extends BaseFragmentActivity {
 					@Override
 					public void onItemClick(View view, MessageBean dataBean, long id) {
 						Intent intent= new Intent(MessageListActivity2.this,MessageDetailActivity.class);
-						intent.putExtra(MessageDetailActivity.INTENT_KEY_MESSAGE_ID, dataBean.getId());
+						intent.putExtra(MessageDetailActivity.INTENT_KEY_MESSAGE_BEAN, dataBean);
 						mHttpDataProvider.getMessageDetailById(dataBean.getId());
 						startActivity(intent);
 						

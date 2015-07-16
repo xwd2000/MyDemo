@@ -1,6 +1,7 @@
 package com.hikvision.parentdotworry.costomui;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -29,6 +30,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
@@ -74,6 +77,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 	private View mVScrollExtraHead;
 	private View mVScrollExtraTail;
 	private FrameLayout mMovingCircleFrame;
+	private TextView mMovingCircleText;
 
 	private List<MarkPointData> mMarkPointList;
 	private Map<MarkPointData, MarkPointViews> mMarkPointViewMap;
@@ -167,7 +171,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 			}
 		});
 		int screenWidth = ScreenUtil.getScreenMetrics(context).widthPixels;
-				
+		
 		//设置container宽度为屏幕宽度
 		LinearLayout.LayoutParams lpLineContainer = (LayoutParams) mRlLineContainer.getLayoutParams();
 		lpLineContainer.width=screenWidth;
@@ -200,10 +204,11 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		mVScrollExtraTail.setLayoutParams(llTail);
 
 		
-		//initImageLoader(context);
 		mPagerAdapter = new PicPagerAdapter();
 		mVpMainPicShow.setAdapter(mPagerAdapter);
 		mVpMainPicShow.setOnPageChangeListener(this);
+
+		
 	}
 
 	public void setLimitTime(Date start, Date end) {
@@ -243,30 +248,32 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 						+ "内" + "当前的时间设置为" + DateUtil.timeToString(start) + "-"
 						+ DateUtil.timeToString(end));
 
-		
-		
-		mIvTimeLine.getViewTreeObserver().addOnGlobalLayoutListener(
-				new OnGlobalLayoutListener() {
-					boolean isFirst = true;// 默认调用两次，这里只让它执行一次回调
-
-					@SuppressLint("NewApi")
-					@Override
-					public void onGlobalLayout() {
-						if(AppApplication.SYSTEM_SDK_VERSION>15){
-							mIvTimeLine.getViewTreeObserver()
-									.removeOnGlobalLayoutListener(this);
+		if(mIvTimeLine.getMeasuredWidth()==0||mIvTimeLine.getMeasuredHeight()==0){
+			mIvTimeLine.getViewTreeObserver().addOnGlobalLayoutListener(
+					new OnGlobalLayoutListener() {
+						boolean isFirst = true;// 默认调用两次，这里只让它执行一次回调
+	
+						@SuppressLint("NewApi")
+						@Override
+						public void onGlobalLayout() {
+							if(AppApplication.SYSTEM_SDK_VERSION>15){
+								mIvTimeLine.getViewTreeObserver()
+										.removeOnGlobalLayoutListener(this);
+							}
+							if (isFirst) {
+								isFirst = false;
+								// 现在布局全部完成，可以获取到任何View组件的宽度、高度、左边、右边等信息
+								Log.i("TimeBarV2", "ViewTreeObserver CallBack W:"
+										+ mIvTimeLine.getMeasuredWidth() + "  H:"
+										+ mIvTimeLine.getMeasuredHeight());
+								addPeriodView(index,start, end);
+							}
 						}
-						if (isFirst) {
-							isFirst = false;
-							// 现在布局全部完成，可以获取到任何View组件的宽度、高度、左边、右边等信息
-							Log.i("TimeBarV2", "ViewTreeObserver CallBack W:"
-									+ mIvTimeLine.getMeasuredWidth() + "  H:"
-									+ mIvTimeLine.getMeasuredHeight());
-							addPeriodView(index,start, end);
-						}
-					}
-				});
-		requestLayout();
+					});
+			requestLayout();
+		}else{
+			addPeriodView(index,start, end);
+		}
 	}
 
 	private void addPeriodView(int index,Date start, Date end) {
@@ -283,17 +290,19 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		lp.width = getXPosition(newPeriod.getEnd()) - getXPosition(newPeriod.getStart());
 		ImageView periodView = new ImageView(mContext);
 		periodView.setImageResource(R.color.main_status_green);
-		mRlLineContainer.addView(periodView, lp);
+		
 		if(EmptyUtil.isEmpty(mPeriodList)||mPeriodList.size()<=index){
 			mPeriodList.add(newPeriod);
 			mPeriodViewList.add(periodView);
 		}else{
 			mPeriodList.remove(index);
 			mPeriodList.add(index, newPeriod);
-			mPeriodViewList.remove(index);
+			mRlLineContainer.removeView(mPeriodViewList.remove(index));
 			mPeriodViewList.add(index, periodView);
 		}
+		mRlLineContainer.addView(periodView, lp);
 		
+		mHsvLineScrollView.scrollTo(ScreenUtil.getScreenMetrics(mContext).widthPixels/2, 0);//设置初始位置
 	};
 
 	/**
@@ -302,7 +311,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 	 * @param time
 	 *            抓图的时间
 	 */
-	public void addDefaultMarkPoint(final Date time,final String picUrl) {
+	public void addDefaultMarkPoint(final Date time,final String picUrl,final int enterOrLeave) {
 		Asserts.check(mLimitTime != null, "addDefaultMarkPoint请先设置总时间");
 		if (mLimitTime.getStart().compareTo(time) >= 0
 				|| mLimitTime.getEnd().compareTo(time) <= 0) {
@@ -331,7 +340,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 							Log.i("TimeBarV2", "ViewTreeObserver CallBack W:"
 									+ mIvTimeLine.getMeasuredWidth() + "  H:"
 									+ mIvTimeLine.getMeasuredHeight());
-							addMarkPointView(time,picUrl);
+							addMarkPointView(time,picUrl,enterOrLeave);
 						}
 					}
 				});
@@ -343,12 +352,13 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 	 * 
 	 * @param time
 	 */
-	public void addMarkPointView(Date time,String picUrl) {
+	public void addMarkPointView(Date time,String picUrl,int enterOrLeave) {
 		MarkPointData mpd = new MarkPointData();
 		mpd.setxInParent(getXPosition(time));
 		mpd.setMarkPointTime(time);
 		mpd.setMarkPointDrawable(mContext.getResources().getDrawable(
 				R.drawable.picture_box));
+		mpd.setIsEnter(enterOrLeave);
 		mpd.setUrl(picUrl);
 		
 		addMarkPointView(mpd);
@@ -362,12 +372,6 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		// RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
 		iv.setImageDrawable(data.getMarkPointDrawable());
 		// lp.leftMargin=data.getxInParent()-ImageUtils.drawableToBitmap(data.getMarkPointDrawable()).getWidth()/2;
-
-		// /添加默认圆
-		
-		
-		
-		
 		
 		//圆和文字容器
 		FrameLayout circleFrame = new FrameLayout(mContext);
@@ -383,7 +387,12 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		
 		//圆中的文本
 		TextView tvCircleText = new TextView(mContext);
-		tvCircleText.setText("来");
+		if(1==data.getIsEnter()){
+			tvCircleText.setText(R.string.main_circle_text_enter);
+		}
+		if(0==data.getIsEnter()){
+			tvCircleText.setText(R.string.main_circle_text_leave);
+		}
 		tvCircleText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
 		tvCircleText.setTextColor(mContext.getResources().getColor(android.R.color.white));
 		FrameLayout.LayoutParams lpTextView = new FrameLayout.LayoutParams(
@@ -409,7 +418,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		lpTimeShow.leftMargin = data.getxInParent();
 		ivTimeShow.setText(DateUtil.dateToString(data.getMarkPointTime(),
 				"HH:mm"));
-		ivTimeShow.setVisibility(View.INVISIBLE);
+		ivTimeShow.setVisibility(View.GONE);
 		mRlTimeTextContainer.addView(ivTimeShow, -1, lpTimeShow);
 
 		MarkPointViews mpvViews = new MarkPointViews();
@@ -425,6 +434,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 			addMovingCircle(data);
 		}else{
 			//将圆放到顶层(不被覆盖)
+			circleFrame.bringToFront();
 			mMovingCircleFrame.bringToFront();
 		}
 	}
@@ -443,9 +453,10 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		mMovingCircleFrame.addView(ivCircle);
 		//创建文本框
 		TextView tvCircleText = new TextView(mContext);
-		tvCircleText.setText("来");
+		tvCircleText.setText("");
 		tvCircleText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
 		tvCircleText.setTextColor(mContext.getResources().getColor(android.R.color.white));
+		mMovingCircleText = tvCircleText;
 		FrameLayout.LayoutParams lpTextView = new FrameLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,Gravity.CENTER);
 		
@@ -601,7 +612,8 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)mMovingCircleFrame.getLayoutParams();
 		
 		//int oldX=mMarkPointList.get(currentItemIndex).getxInParent()-mMovingCircleWidth/2-lp.leftMargin;
-		int newX = mMarkPointList.get(toIndex).getxInParent()-mMovingCircleWidth/2-lp.leftMargin;// 记录的x位置
+		MarkPointData newData =mMarkPointList.get(toIndex);
+		int newX = newData.getxInParent()-mMovingCircleWidth/2-lp.leftMargin;// 记录的x位置
 		
 		Log.d(TAG,"newX="+newX);
 		TranslateAnimation an = new TranslateAnimation(
@@ -612,7 +624,11 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		an.setFillAfter(true);
 		an.setDuration(300);
 		mMovingCircleFrame.startAnimation(an);
-		
+		if(newData.getIsEnter()==1){
+			mMovingCircleText.setText(R.string.main_circle_text_enter);
+		}else{
+			mMovingCircleText.setText(R.string.main_circle_text_leave);
+		}
 		mOldCircleX = newX;
 	}	
 	/**
@@ -624,17 +640,44 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		if(mMarkPointList.size()>mCurrentItemIndex){
 			//原文字消失
 			MarkPointViews oldViews = mMarkPointViewMap.get(mMarkPointList.get(mCurrentItemIndex));
+			final TextView oldTextView = oldViews.getMarkPointTextView();
 			AlphaAnimation fadeOut = new AlphaAnimation(1,0);
 			fadeOut.setDuration(200);
 			fadeOut.setFillAfter(true);
-			oldViews.getMarkPointTextView().startAnimation(fadeOut);
+			fadeOut.setAnimationListener(new AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {}
+				
+				@Override
+				public void onAnimationRepeat(Animation animation) {}
+				
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					oldTextView.setVisibility(View.GONE);
+				}
+			});
+			oldTextView.startAnimation(fadeOut);
 		}
 		
-		
+		final TextView newTextView = views.getMarkPointTextView();
 		AlphaAnimation fadeIn = new AlphaAnimation(0,1);
 		fadeIn.setDuration(300);
 		fadeIn.setFillAfter(true);
-		views.getMarkPointTextView().startAnimation(fadeIn);
+		fadeIn.setAnimationListener(new AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+					newTextView.setVisibility(View.INVISIBLE);
+				}
+				
+				@Override
+				public void onAnimationRepeat(Animation animation) {}
+				
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					newTextView.setVisibility(View.VISIBLE);
+				}
+			});
+		newTextView.startAnimation(fadeIn);
 	}
 	
 
@@ -681,7 +724,40 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		}
 		//setCurrentMarkPoint(mCurrentItemIndex);
 	}
-
+	
+	/**
+	 * 获取限制时间，用于设置bar的开始时间
+	 * @param periodStart
+	 * @param hourEarily
+	 * @return
+	 */
+	public static Date getTimeBarStartTimeByNormalTimeStart(Date periodStart,int hourEarily){
+		Date LimitStart = null;
+		int hourS = DateUtil.getHour(DateUtil.getCalendar(periodStart));
+		if (hourS > hourEarily) {
+			LimitStart = DateUtil
+					.addDate(periodStart, -hourEarily, Calendar.HOUR_OF_DAY);
+		} else {
+			LimitStart = DateUtil.dayStart(periodStart);
+		}
+		return LimitStart;
+	}
+	/**
+	 * 获取限制时间，用于设置bar的结束时间
+	 * @param periodStart
+	 * @param hourLater
+	 * @return
+	 */
+	public static Date getTimeBarEndTimeByNormalTimeEnd(Date periodEnd,int hourLater){
+		Date LimitEnd = null;
+		int hourE = DateUtil.getHour(DateUtil.getCalendar(periodEnd));
+		if (hourE < (24-hourLater)) {
+			LimitEnd = DateUtil.addDate(periodEnd, hourLater, Calendar.HOUR_OF_DAY);
+		} else {
+			LimitEnd = DateUtil.dayEnd(periodEnd);
+		}
+		return LimitEnd;
+	}
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
@@ -724,6 +800,14 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 
 		public void setUrl(String url) {
 			this.url = url;
+		}
+
+		public int getIsEnter() {
+			return isEnter;
+		}
+
+		public void setIsEnter(int isEnter) {
+			this.isEnter = isEnter;
 		}
 
 	}
@@ -805,21 +889,8 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 	 * 
 	 */
 	private class PicPagerAdapter extends PagerAdapter {
-	
-		@Override
-		public void destroyItem(View container, int position, Object object) {
-			// ((ViewPag.er)container).removeView((View)object);
-			ImageView imageView = (ImageView)object;
-			((ViewPager) container).removeView(imageView);
-		}
-
-		@Override
-		public Object instantiateItem(ViewGroup container, int position) {
-			// 获取第I个图片
-			MarkPointData data = mMarkPointList.get(position);
-			ImageView imageView = mMarkPointViewMap.get(data).getMarkPointImageView();
-
-			DisplayImageOptions options;  
+		private DisplayImageOptions options;
+		public PicPagerAdapter(){
 			options = new DisplayImageOptions.Builder()
 			.showImageOnLoading(R.drawable.default_pic) //设置图片在下载期间显示的图片  
 			.showImageForEmptyUri(R.drawable.default_pic)//设置图片Uri为空或是错误的时候显示的图片  
@@ -849,7 +920,20 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		    .displayer(new RoundedBitmapDisplayer(20))//是否设置为圆角，弧度为多少  
 		    .displayer(new FadeInBitmapDisplayer(100))//是否图片加载好后渐入的动画时间  
 		    .build();//构建完成  
-		    
+		}
+		@Override
+		public void destroyItem(View container, int position, Object object) {
+			// ((ViewPag.er)container).removeView((View)object);
+			ImageView imageView = (ImageView)object;
+			((ViewPager) container).removeView(imageView);
+		}
+
+		@Override
+		public Object instantiateItem(ViewGroup container, int position) {
+			// 获取第I个图片
+			MarkPointData data = mMarkPointList.get(position);
+			ImageView imageView = mMarkPointViewMap.get(data).getMarkPointImageView();
+			
 			mImageLoader.displayImage(data.getUrl(), imageView, options);
 			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
 					RelativeLayout.LayoutParams.WRAP_CONTENT,

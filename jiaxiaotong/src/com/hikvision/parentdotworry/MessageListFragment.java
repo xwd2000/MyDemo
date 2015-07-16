@@ -9,7 +9,10 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListViewHasHeadView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import com.hikvision.parentdotworry.application.AppApplication;
 import com.hikvision.parentdotworry.base.AsyncTaskBase;
+import com.hikvision.parentdotworry.base.BaseActivity;
+import com.hikvision.parentdotworry.base.BaseFragmentActivity;
 import com.hikvision.parentdotworry.bean.AdvertisementInfo;
 import com.hikvision.parentdotworry.bean.ChildInfo;
 import com.hikvision.parentdotworry.bean.MessageBean;
@@ -23,6 +26,7 @@ import com.hikvision.parentdotworry.costomui.commonadapter.CommonViewHolder;
 import com.hikvision.parentdotworry.dataprovider.dao.UseDatabase;
 import com.hikvision.parentdotworry.dataprovider.dao.UseDatabase.CursorToBean;
 import com.hikvision.parentdotworry.dataprovider.httpdata.HttpDataProvider;
+import com.hikvision.parentdotworry.exception.AppBaseException;
 import com.hikvision.parentdotworry.exception.AppUserException;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.DisplayImageOptions;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.ImageScaleType;
@@ -187,11 +191,12 @@ public class MessageListFragment extends Fragment {
 	 *            state, this is the state.
 	 */
 	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		Bundle bundle = getArguments();
 		this.mChildInfo = (ChildInfo) bundle.getSerializable(BUNDLE_CHILDID_KEY);
 		//mDataList.addAll(mHttpDataProvider.getMessagePage(mChildId,1, 10));// 模拟数据
 		
-		super.onCreate(savedInstanceState);
+		
 	};
 
 	@Override
@@ -311,23 +316,14 @@ public class MessageListFragment extends Fragment {
 			        titleComplex.append(spanString);
 				}
 		        caiv.setTextForTextView(R.id.tv_message_title, titleComplex);
-		        
+		      
 				caiv.setTextForTextView(R.id.tv_message_department,
 						item.getPromulgator());
 				caiv.setTextForTextView(R.id.tv_message_date, item.getReleaseTime());
 				
-				DisplayImageOptions options = new DisplayImageOptions.Builder()  
-				    .showImageOnLoading(R.drawable.default_pic) //设置图片在下载期间显示的图片  
-				    .showImageForEmptyUri(R.drawable.default_pic)//设置图片Uri为空或是错误的时候显示的图片  
-				    .showImageOnFail(R.drawable.default_pic)  //设置图片加载/解码过程中错误时候显示的图片
-				    .cacheInMemory(true)//设置下载的图片是否缓存在内存中  
-				    .cacheOnDisk(true)//设置下载的图片是否缓存在SD卡中  
-				    .considerExifParams(true)  //是否考虑JPEG图像EXIF参数（旋转，翻转）
-				    .imageScaleType(ImageScaleType.EXACTLY_STRETCHED)//设置图片以如何的编码方式显示  
-				    .bitmapConfig(Bitmap.Config.RGB_565)//设置图片的解码类型//  
-				    .resetViewBeforeLoading(true)//设置图片在下载前是否重置，复位  
-				    .displayer(new FadeInBitmapDisplayer(100))//是否图片加载好后渐入的动画时间  
-				    .build();//构建完成  
+				
+				//获取默认的图片加载设置
+				DisplayImageOptions options = AppApplication.getApplication().getAppDefaultDisplayImageOptions();
 
 				if(EmptyUtil.isEmpty(item.getPicUrl())){
 					caiv.getView(R.id.iv_message_image).setVisibility(View.GONE);
@@ -343,13 +339,8 @@ public class MessageListFragment extends Fragment {
 			
 		
 		};
-		
-		mSsvAdvertisement.init(
-				ListUtil.generateList(
-					new AdvertisementInfo("http://image.zcool.com.cn/56/35/1303967876491.jpg", "http://image.zcool.com.cn/56/35/1303967876491.jpg"),
-	        		new AdvertisementInfo("http://image.zcool.com.cn/59/54/m_1303967870670.jpg", "http://image.zcool.com.cn/59/54/m_1303967870670.jpg"),
-	        		new AdvertisementInfo("http://image.zcool.com.cn/47/19/1280115949992.jpg", "http://image.zcool.com.cn/47/19/1280115949992.jpg"),
-	        		new AdvertisementInfo("http://image.zcool.com.cn/59/11/m_1303967844788.jpg","http://image.zcool.com.cn/59/11/m_1303967844788.jpg")));
+		List<AdvertisementInfo> advList = mUseDatabase.findList("child_id = ?", new String[]{""+mChildInfo.getId()}, AdvertisementInfo.class);
+		mSsvAdvertisement.init(advList);
 
 		ILoadingLayout startLabels = mPtrlvMessageList.getLoadingLayoutProxy(
 				true, false);
@@ -363,7 +354,7 @@ public class MessageListFragment extends Fragment {
 		endLabels.setRefreshingLabel("正在载入...");// 刷新时
 		endLabels.setReleaseLabel("放开刷新...");// 下来达到一定距离时，显示的提示
 		
-		
+		new RefreshAdvTask(getActivity()).execute();
 	}
 	
 	
@@ -407,7 +398,36 @@ public class MessageListFragment extends Fragment {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-	
+	private class RefreshAdvTask extends AsyncTaskBase<Void, Void, List<AdvertisementInfo>> {
+
+		public RefreshAdvTask(Context context) {
+			super(context);
+		}
+
+		@Override
+		protected List<AdvertisementInfo> realDoInBackground(Void... params)
+				throws Exception {
+			List<AdvertisementInfo> advList = mHttpDataProvider.getAdvertisement(mChildInfo.getId(), mChildInfo.getParentPhone());
+			return advList;
+		}
+
+		@Override
+		protected void realOnPostExecute(List<AdvertisementInfo> result) {
+			if(!EmptyUtil.isEmpty(result)){
+				mSsvAdvertisement.init(result);
+				for(AdvertisementInfo adv:result){
+					adv.setChildId(mChildInfo.getId());
+				}
+				mUseDatabase.insertOrUpdate(result);
+			}
+		}
+
+		@Override
+		protected void onError(Exception e) {
+			
+		}
+		
+	}
 	private class RefreshDataTask extends
 			AsyncTaskBase<Void, Void, List<MessageBean>> {
 		public static final int DIRECTION_UP = 0;
@@ -436,33 +456,36 @@ public class MessageListFragment extends Fragment {
 			super.onPreExecute();
 		}
 		
+		
 		@Override
-		protected List<MessageBean> realDoInBackground(Void... params) throws AppUserException, IOException {
+		protected List<MessageBean> realDoInBackground(Void... params) throws AppBaseException, IOException {
 			if(NetState.getNetWorkded()){//有网
+				List<MessageBean> messageBeanList=null;
 				switch (direction) {
 					case DIRECTION_DOWN:
-						mCurrentPage = 1;
 						//List<MessageBean> 
 						Pagination<MessageBean> pullBeanPagination = mHttpDataProvider
 								.getNoticeDetail(mChildInfo.getId(),mChildInfo.getParentPhone(),PAGE_SIZE,mCurrentPage);
 						mUseDatabase.delete(MessageBean.class,"child_id = ?",new String[]{mChildInfo.getId()+""});//删除数据
-						if(!EmptyUtil.isEmpty(pullBeanPagination.getData())){
-							mUseDatabase.insert(pullBeanPagination.getData());
-						}
-						return pullBeanPagination.getData();
+						messageBeanList=pullBeanPagination.getData();
+						break;
 					case DIRECTION_UP:
 						Pagination<MessageBean> pullBeanPagination2 = mHttpDataProvider
 								.getNoticeDetail(mChildInfo.getId(),mChildInfo.getParentPhone(),PAGE_SIZE,++mCurrentPage);
-						if(!EmptyUtil.isEmpty(pullBeanPagination2.getData())){
-							mUseDatabase.insertOrUpdate(pullBeanPagination2.getData());
-						}
-						return pullBeanPagination2.getData();
+						messageBeanList = pullBeanPagination2.getData();
 					default:
 				}
+				if(!EmptyUtil.isEmpty(messageBeanList)){
+					for(MessageBean messageBean:messageBeanList){
+						messageBean.setChildId(mChildInfo.getId());
+						messageBean.setId(messageBean.getChildId()*100+mChildInfo.getId());
+					}
+					mUseDatabase.insertOrUpdate(messageBeanList);
+				}
+				return messageBeanList;
 			}else{//没网
 				switch (direction) {
 					case DIRECTION_DOWN:
-						mCurrentPage = 1;
 						List<MessageBean> pullBeanList = mUseDatabase
 								.findPageList("child_id = ?",new String[]{mChildInfo.getId()+""}, mCurrentPage, PAGE_SIZE, 
 										"time", "desc", new MyCursorToBean(),MessageBean.class);
@@ -500,7 +523,6 @@ public class MessageListFragment extends Fragment {
 		}
 		@Override
 		protected void onError(Exception e) {
-			// TODO Auto-generated method stub
 			
 		}
 	}
@@ -508,13 +530,15 @@ public class MessageListFragment extends Fragment {
 	public class MyCursorToBean implements  CursorToBean<MessageBean>{
 		@Override
 		public MessageBean cursorToBean(Cursor c, MessageBean bean) {
+			
 			bean.setChildId(c.getInt(c.getColumnIndex("child_id")));
 			bean.setPromulgator(c.getString(c.getColumnIndex("promulgator")));
-			bean.setPicUrl(c.getString(c.getColumnIndex("pic_uri")));
+			bean.setPicUrl(c.getString(c.getColumnIndex("pic_url")));
 			bean.setId(c.getInt(c.getColumnIndex("id")));
 			bean.setIsNew(c.getInt(c.getColumnIndex("is_new")));
 			bean.setReleaseTime(c.getString(c.getColumnIndex("release_time")));
 			bean.setTitle(c.getString(c.getColumnIndex("title")));
+			bean.setContent(c.getString(c.getColumnIndex("content")));
 			return bean;
 		}
 	}

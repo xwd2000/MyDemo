@@ -29,13 +29,15 @@ import com.hikvision.parentdotworry.utils.StringUtils;
 
 public class UseDatabase{
 	private static final String TAG="UseDatabase";
+	private static final int READ = 1;
+	private static final int WRITE = 2;
 	
 	private static UseDatabase instance = new UseDatabase();
     private Context context;
     private DatabaseHelper dbhelper;
     public SQLiteDatabase sqlitedatabase;
-    private boolean dbCanWrite=false;
-    private boolean dbCanRead=false;
+    private int dbCanWrite=0;
+    private int dbCanRead=0;
     
     /**
      * key:class ,value:({key:fieldName,value:methods})
@@ -67,10 +69,9 @@ public class UseDatabase{
     //打开数据库连接
     public void openWriteableDb(Context context)
     {	
-    	if(dbCanWrite==false){
+    	if(0==dbCanWrite++){
 	        dbhelper = new DatabaseHelper(context);
 	        sqlitedatabase = dbhelper.getWritableDatabase();
-	        dbCanWrite=true;
     	}
     }
     public void beginTransaction(){
@@ -87,29 +88,33 @@ public class UseDatabase{
     //打开数据库连接
     public void openReadableDb(Context context)
     {
-    	if(dbCanRead==false){
+    	if(0==dbCanRead++){
 	        dbhelper = new DatabaseHelper(context);
 	        sqlitedatabase = dbhelper.getWritableDatabase();
-	        dbCanRead=true;
     	}
     }
     //关闭数据库连接
-    public void closedb(Context context)
+    public void closeReadableDb(Context context,int readOrWrite)
     {
-        if(sqlitedatabase.isOpen())
+    	if(readOrWrite==READ){
+    		--dbCanRead;
+    	}else if(readOrWrite==WRITE){
+    		--dbCanWrite;
+    	}
+        if(dbCanRead==0&&dbCanWrite==0)
         {
-            sqlitedatabase.close();    
-            dbCanWrite=false;
-            dbCanRead=false;
-            
+        	if(sqlitedatabase.isOpen()){
+        		sqlitedatabase.close();    
+        	}
         }
     }
+    
     //插入表数据
     public void insert(String table_name,ContentValues values)
     {
     	openWriteableDb(context);
         sqlitedatabase.insert(table_name, null, values);
-        closedb(context);
+        closeReadableDb(context,WRITE);
     }
     
     /**
@@ -200,7 +205,7 @@ public class UseDatabase{
     	String tableName =getClassTableName(beanClazz);
     	ContentValues cv = getBeanContentValues(bean);
     	sqlitedatabase.insert(tableName, null, cv);
-        closedb(context);
+        closeReadableDb(context,WRITE);
     }
     
     /**
@@ -229,7 +234,7 @@ public class UseDatabase{
     	}
     	transactionSuccessful();
     	endTransaction();
-        closedb(context);
+        closeReadableDb(context,WRITE);
     }
     
     /**
@@ -259,7 +264,7 @@ public class UseDatabase{
     	sqlitedatabase.insertWithOnConflict(tableName, null, cv,SQLiteDatabase.CONFLICT_REPLACE);
     	transactionSuccessful();
     	endTransaction();
-        closedb(context);
+        closeReadableDb(context,WRITE);
     }
     
     /**
@@ -301,7 +306,7 @@ public class UseDatabase{
     	 
     	transactionSuccessful();
     	endTransaction();
-    	closedb(context);
+    	closeReadableDb(context,WRITE);
     }
     
     public <T extends FromDb>  void insertOrUpdate(List<T> beanList){
@@ -333,7 +338,7 @@ public class UseDatabase{
     	String tableName = getClassTableName(clazz);
     	openWriteableDb(context);
     	sqlitedatabase.delete(tableName, whereStr, params);
-    	closedb(context);
+    	closeReadableDb(context,WRITE);
     }
     /**
      * 删除bean，其中判断条件为ID
@@ -384,7 +389,6 @@ public class UseDatabase{
     //更新数据
     public int updatatable(String table_name,ContentValues values,int ID)
     {
-    	openWriteableDb(context);
         return sqlitedatabase.update(table_name, values, " Type_ID = ? ", new String[]{String.valueOf(ID)});
     }
     //删除表数据
@@ -399,7 +403,7 @@ public class UseDatabase{
             e.printStackTrace();
         }
         finally{
-            closedb(context);
+            closeReadableDb(context,WRITE);
         }
     }
     
@@ -522,7 +526,7 @@ public class UseDatabase{
             +"mill second,please List<T> findList(String sql,String[] where,CursorToBean<T> paser,Class<T> beanClazz) instead");
         }
 
-        closedb(context);
+        closeReadableDb(context,READ);
         return result;
     }
     

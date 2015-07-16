@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.hikvision.parentdotworry.application.AppApplication;
 import com.hikvision.parentdotworry.application.AppConfig;
+import com.hikvision.parentdotworry.bean.AdvertisementInfo;
 import com.hikvision.parentdotworry.bean.ChildInfo;
 import com.hikvision.parentdotworry.bean.ChildCaptureInfo;
 import com.hikvision.parentdotworry.bean.MessageBean;
@@ -37,7 +38,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			ChildInfo.class,
 			MessageBean.class,
 			NomalTime.class,
-			ChildCaptureInfo.class
+			ChildCaptureInfo.class,
+			AdvertisementInfo.class
 			);
 	public static Map<String,String> dataTypeMap;
 	static{

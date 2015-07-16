@@ -7,8 +7,10 @@ import com.hikvision.parentdotworry.bean.interf.FromDb;
 public class ChildCaptureInfo implements FromDb {
 	private Integer id;
 	private Integer childId;
-	private Date captureTime;
-	private String captureUrl;
+	private Date time;
+	private String picUrl;
+	//1：进    2：出
+	private Integer state;   //孩子是进还是出
 
 	public Integer getId() {
 		return id;
@@ -26,20 +28,28 @@ public class ChildCaptureInfo implements FromDb {
 		this.childId = childId;
 	}
 
-	public Date getCaptureTime() {
-		return captureTime;
+	public Date getTime() {
+		return time;
 	}
 
-	public void setCaptureTime(Date captureTime) {
-		this.captureTime = captureTime;
+	public void setTime(Date time) {
+		this.time = time;
 	}
 
-	public String getCaptureUrl() {
-		return captureUrl;
+	public String getPicUrl() {
+		return picUrl;
 	}
 
-	public void setCaptureUrl(String captureUrl) {
-		this.captureUrl = captureUrl;
+	public void setPicUrl(String picUrl) {
+		this.picUrl = picUrl;
+	}
+
+	public Integer getState() {
+		return state;
+	}
+
+	public void setState(Integer state) {
+		this.state = state;
 	}
 
 	@Override
@@ -49,10 +59,12 @@ public class ChildCaptureInfo implements FromDb {
 				.append(id)
 				.append(",childId：")
 				.append(childId)
-				.append(",captureTime：")
-				.append(captureTime)
-				.append(",captureUrl：")
-				.append(captureUrl)
+				.append(",time：")
+				.append(time)
+				.append(",picUrl：")
+				.append(picUrl)
+				.append(",state：")
+				.append(state)
 				.toString();
 
 	}

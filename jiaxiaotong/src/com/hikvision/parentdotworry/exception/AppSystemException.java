@@ -14,4 +14,8 @@ public class AppSystemException extends AppBaseException{
 	public AppSystemException(AppError error) {
 		super(error);
 	}
+	
+	public AppSystemException(AppError error,String message){
+		super(error,message);
+	}
 }

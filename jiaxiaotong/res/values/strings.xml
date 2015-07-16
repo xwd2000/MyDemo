@@ -72,10 +72,14 @@
     <!-- 信息页面 -->
 <!--     旧页面 -->
 	
-    <string name="main_warming_message_child_in_school">您的孩子已在学校</string>
-    <string name="main_warming_message_child_not_in_school">您的孩子未在学校</string>
 	
+    <string name="main_warming_message_child_not_in_school">您的孩子未到学校</string>
+    <string name="main_warming_message_child_in_school">您的孩子已到学校</string>
+    <string name="main_warming_message_child_in_school_in_time">您的孩子按时已到学校</string>
     <string name="main_warming_message_child_late">您的孩子迟到了</string>
+    <string name="main_warming_message_child_has_not_leave_school">您的孩子未离学校</string>
+    <string name="main_warming_message_child_has_leave_school">您的孩子已离学校</string>
+    
     <string name="main_warming_message_child_leave_earlier">您的孩子早退了</string>
     <string name="main_warm_network_unavliable">警告，当前网络不可用</string>
     <string name="main_getting_message">获取信息中</string>
@@ -128,9 +132,14 @@
 	<string name="error_network_2000_error">网络错误</string>
 	<string name="error_network_2001_timeout">请求超时</string>
 	<string name="error_network_2002_decode_response">解码应答出错</string>
+	<string name="error_network_2003_no_status_return">无状态返回</string>
+	
+	<string name="error_network_2009_error_unknow">未知错误</string>
 	
 	
 	<string name="error_user_9001_no_child_info">没有获取到孩子信息</string>
 	<string name="error_user_9002_no_nomal_time">无法获取到学校上学时间段</string>
+	
+	<string name="error_user_9003_argument">请求参数错误</string>
 	
 </resources>

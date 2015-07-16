@@ -105,9 +105,8 @@ public class HttpDataProvider {
 		List<ChildCaptureInfo> childCaptureInfoList = new ArrayList<ChildCaptureInfo>();
 		for(int i=0;i<5;i++){
 			ChildCaptureInfo cci=new ChildCaptureInfo();
-			cci.setCaptureTime(DateUtil.addDate(now,i,Calendar.HOUR));
+			
 			cci.setChildId(childId);
-			cci.setCaptureUrl(urls[picPos++%urls.length]);
 			cci.setId(childId*100+i);
 			childCaptureInfoList.add(cci);
 		}

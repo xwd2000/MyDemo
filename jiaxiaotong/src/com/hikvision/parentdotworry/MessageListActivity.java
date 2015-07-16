@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -24,6 +25,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TabWidget;
 
 import com.hikvision.parentdotworry.MessageListFragment.OnCreatedViewListener;
+import com.hikvision.parentdotworry.application.AppApplication;
 import com.hikvision.parentdotworry.application.AppConfig;
 import com.hikvision.parentdotworry.base.BaseFragmentActivity;
 import com.hikvision.parentdotworry.bean.ChildInfo;
@@ -67,6 +69,7 @@ public class MessageListActivity extends BaseFragmentActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.message_list_activity);
 		mChildList=(List<ChildInfo>) getIntent().getSerializableExtra(KEY_CHILD_INFO_LIST);
 		if(EmptyUtil.isEmpty(mChildList)){
@@ -74,7 +77,7 @@ public class MessageListActivity extends BaseFragmentActivity {
 		}
 		initUiInstance();
 		initView();
-		super.onCreate(savedInstanceState);
+		
 	}
 
 
@@ -129,25 +132,22 @@ public class MessageListActivity extends BaseFragmentActivity {
 			@Override
 			public void onPageSelected(int item) {
 				mTscChildSelectContainer.setCurrentTab(item);
-				
 			}
 			
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				
 			}
 			
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
-				
 			}
 		});
 		
 	}
 	
-	 public void goToMessageDetailPage(int messageId){
+	 public void goToMessageDetailPage(MessageBean dataBean,int messageId){
 		   Intent intent= new Intent(MessageListActivity.this,MessageDetailActivity.class);
-			intent.putExtra(MessageDetailActivity.INTENT_KEY_MESSAGE_ID, messageId);
+			intent.putExtra(MessageDetailActivity.INTENT_KEY_MESSAGE_BEAN, dataBean);
 			startActivity(intent);
 	   }
 
@@ -174,7 +174,7 @@ public class MessageListActivity extends BaseFragmentActivity {
 	        			new MessageListFragment.ListItemOnClickListener() {
 					@Override
 					public void onItemClick(View view, MessageBean dataBean, long id) {
-						goToMessageDetailPage(dataBean.getId());
+						goToMessageDetailPage(dataBean,dataBean.getId());
 					}
 				});
 	        	fragment.setOnCreatedViewListener(
@@ -185,14 +185,21 @@ public class MessageListActivity extends BaseFragmentActivity {
 								mlf.getSsvAdvertisement().getViewTreeObserver().addOnGlobalLayoutListener(
 									new OnGlobalLayoutListener() {
 										boolean isFirst = true;
+										@SuppressLint("NewApi")
 										@Override
 										public void onGlobalLayout() {
+											// TODO 这个函数15以下不可用
+											if(AppApplication.SYSTEM_SDK_VERSION>15){
+												mlf.getSsvAdvertisement().getViewTreeObserver()
+														.removeOnGlobalLayoutListener(this);
+											}
 											if (isFirst) {
 												isFirst = false;
 												mVpListContainer.clearChildTouchRect();
 												Rect childViewPagerRect = new Rect(0,0,mlf.getSsvAdvertisement().getWidth(),mlf.getSsvAdvertisement().getHeight());
 												mVpListContainer.addChildTouchRect(childViewPagerRect);
 											}
+											
 										}
 									}
 								);

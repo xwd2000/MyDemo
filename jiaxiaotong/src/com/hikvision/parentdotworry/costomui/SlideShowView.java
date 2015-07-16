@@ -104,14 +104,8 @@ public class SlideShowView extends FrameLayout {
 
 		initImageLoader(context);
 		
-		init(ListUtil.generateList(
-        		new AdvertisementInfo("http://image.zcool.com.cn/56/35/1303967876491.jpg", "http://image.zcool.com.cn/56/35/1303967876491.jpg"),
-        		new AdvertisementInfo("http://image.zcool.com.cn/59/54/m_1303967870670.jpg", "http://image.zcool.com.cn/59/54/m_1303967870670.jpg"),
-        		new AdvertisementInfo("http://image.zcool.com.cn/47/19/1280115949992.jpg", "http://image.zcool.com.cn/47/19/1280115949992.jpg"),
-        		new AdvertisementInfo("http://image.zcool.com.cn/59/11/m_1303967844788.jpg","http://image.zcool.com.cn/59/11/m_1303967844788.jpg")));
-				
-				
-				
+		init(new ArrayList<AdvertisementInfo>());
+		
         if(isAutoPlay){
             startPlay();
         }
@@ -219,7 +213,7 @@ public class SlideShowView extends FrameLayout {
 				@Override
 				public void onClick(View v) {
 					Intent it = new Intent( Intent.ACTION_VIEW );
-					it.setData( Uri.parse(ai.getConnectintWeb()) );
+					it.setData( Uri.parse(ai.getContent()) );
 					it = Intent.createChooser( it, null );
 					context.startActivity( it );
 				}

@@ -10,6 +10,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.hikvision.parentdotworry.application.AppApplication;
 import com.hikvision.parentdotworry.base.BaseActivity;
 import com.hikvision.parentdotworry.bean.MessageBean;
 import com.hikvision.parentdotworry.bean.MessageDetail;
@@ -30,7 +31,7 @@ public class MessageDetailActivity extends BaseActivity {
 	// Constants
 	// ===========================================================
 	private static final String TAG = "MessageDetailActivity";
-	public static final String INTENT_KEY_MESSAGE_ID = "messageId";
+	public static final String INTENT_KEY_MESSAGE_BEAN = "messagebean";
 	private static final float IMAGE_MIN_RATIO = 9/16f;
 	// ===========================================================
 	// Fields
@@ -41,6 +42,7 @@ public class MessageDetailActivity extends BaseActivity {
 	private TextView mTvMessageDetailPageTime;
 	private TextView mTvMessageDetailPageDepartment;
 	private ImageView mIvMessageDetailImage;
+	private ImageView mIvMessageDetailLine;
 
 	private HttpDataProvider mHttpDataProvider = HttpDataProvider.getInstance();
 	private MessageDetail mMessageDetail;// 数据bean
@@ -56,18 +58,18 @@ public class MessageDetailActivity extends BaseActivity {
 	// ===========================================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.message_detail_activity);
 		Intent intent = getIntent();
-		int id = intent.getIntExtra(INTENT_KEY_MESSAGE_ID, 0);
+		MessageBean messageBean = (MessageBean)intent.getSerializableExtra(INTENT_KEY_MESSAGE_BEAN);
 		
 
 		mImageLoader = ImageLoader.getInstance();
 		initUiInstance();
 		initView();
 
-		
-		new GetDataTask(id).execute();
-		super.onCreate(savedInstanceState);
+		addViewData(messageBean);
+		//new GetDataTask(id).execute();
 	}
 	
 	@Override
@@ -85,6 +87,7 @@ public class MessageDetailActivity extends BaseActivity {
 		mTvMessageDetailPageTime = (TextView) findViewById(R.id.tv_message_detail_page_time);
 		mTvMessageDetailPageDepartment = (TextView) findViewById(R.id.tv_message_detail_page_department);
 		mIvMessageDetailImage = (ImageView) findViewById(R.id.iv_message_detail_image);
+		mIvMessageDetailLine = (ImageView) findViewById(R.id.iv_message_detail_line);
 		mTvMessageDetailTitle = (TextView) findViewById(R.id.tv_message_detail_title);
 	}
 
@@ -101,28 +104,39 @@ public class MessageDetailActivity extends BaseActivity {
 		
 	}
 
-	private void addViewData(MessageDetail messageDetail) {
+	private void addViewData(MessageBean messageDetail) {
 		Args.notNull(messageDetail, "messageDetail");
 
-		String largePicUrl = messageDetail.getLargePicUrl();
+		String largePicUrl = messageDetail.getPicUrl();
 		if (!EmptyUtil.isEmpty(largePicUrl)) {
-			DisplayImageOptions options = new DisplayImageOptions.Builder()
-					.cacheInMemory(true)// 设置下载的图片是否缓存在内存中
-					.cacheOnDisk(true)// 设置下载的图片是否缓存在SD卡中
-					.considerExifParams(true) // 是否考虑JPEG图像EXIF参数（旋转，翻转）
-					.build();// 构建完成
+			mIvMessageDetailLine.setVisibility(View.GONE);
+			mIvMessageDetailImage.setVisibility(View.VISIBLE);
+			DisplayImageOptions options = AppApplication.getApplication().getAppDefaultDisplayImageOptions();
 			// 依次从内存和sd中获取，如果没有则网络下载
 			mImageLoader.displayImage(largePicUrl, mIvMessageDetailImage,
 					options, new ImageLoadingListener() {
 						@Override
 						public void onLoadingStarted(String imageUri, View view) {
-							
+							LayoutParams lp = view.getLayoutParams();
+							DisplayMetrics dm = ScreenUtil.getScreenMetrics(MessageDetailActivity.this);
+							int imageViewWidth = dm.widthPixels - 2*getResources().getDimensionPixelSize(R.dimen.message_detail_main_padding);
+							lp.width = imageViewWidth;
+							float heightMax = imageViewWidth*IMAGE_MIN_RATIO;
+							lp.height = (int) heightMax;
+							view.setLayoutParams(lp);
 						}
 
 						@Override
 						public void onLoadingFailed(String imageUri, View view,
 								FailReason failReason) {
 
+							LayoutParams lp = view.getLayoutParams();
+							DisplayMetrics dm = ScreenUtil.getScreenMetrics(MessageDetailActivity.this);
+							int imageViewWidth = dm.widthPixels - 2*getResources().getDimensionPixelSize(R.dimen.message_detail_main_padding);
+							lp.width = imageViewWidth;
+							float heightMax = imageViewWidth*IMAGE_MIN_RATIO;
+							lp.height = (int) heightMax;
+							view.setLayoutParams(lp);
 						}
 
 						@Override
@@ -139,6 +153,7 @@ public class MessageDetailActivity extends BaseActivity {
 							lp.height = (int) (height>heightMax?heightMax:height);
 							view.setLayoutParams(lp);
 						}
+						
 
 						@Override
 						public void onLoadingCancelled(String imageUri,
@@ -146,11 +161,14 @@ public class MessageDetailActivity extends BaseActivity {
 
 						}
 					});
+		}else{
+			mIvMessageDetailLine.setVisibility(View.VISIBLE);
+			mIvMessageDetailImage.setVisibility(View.GONE);
 		}
 		mTvMessageDetailPageTime.setText(messageDetail.getReleaseTime());
 		mTvMessageDetailPageDepartment.setText(messageDetail.getPromulgator());
 		mTvMessageDetailTitle.setText(messageDetail.getTitle());
-		mTvMessageDetail.setText(messageDetail.getDetail());
+		mTvMessageDetail.setText(messageDetail.getContent());
 	}
 	// ===========================================================
 	// Inner and Anonymous Classes
@@ -166,7 +184,7 @@ public class MessageDetailActivity extends BaseActivity {
 
 		@Override
 		protected MessageBean doInBackground(Void... params) {
-			mMessageDetail = mHttpDataProvider.getMessageDetailById(messageId);
+			//mMessageDetail = mHttpDataProvider.getMessageDetailById(messageId);
 			return mMessageDetail;
 		}
 		@Override

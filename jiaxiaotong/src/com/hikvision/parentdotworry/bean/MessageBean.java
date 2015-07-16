@@ -1,8 +1,14 @@
 package com.hikvision.parentdotworry.bean;
 
+import java.io.Serializable;
+
 import com.hikvision.parentdotworry.bean.interf.FromDb;
 
-public class MessageBean implements FromDb{
+public class MessageBean implements FromDb,Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String title;
 	private String picUrl;
@@ -13,8 +19,6 @@ public class MessageBean implements FromDb{
 	private String content;
 	
 
-	
-	
 	public Integer getId() {
 		return id;
 	}

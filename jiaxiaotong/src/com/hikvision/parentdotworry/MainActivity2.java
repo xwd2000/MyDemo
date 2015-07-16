@@ -24,6 +24,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -56,7 +59,9 @@ import com.hikvision.parentdotworry.exception.AppError;
 import com.hikvision.parentdotworry.receiver.OnNetWorkChangeListener;
 import com.hikvision.parentdotworry.utils.DateUtil;
 import com.hikvision.parentdotworry.utils.EmptyUtil;
+import com.hikvision.parentdotworry.utils.QEncodeUtil;
 import com.hikvision.parentdotworry.utils.ScreenUtil;
+import com.hikvision.parentdotworry.vo.ChildState;
 
 public class MainActivity2 extends BaseFlingActivity implements
 		OnNetWorkChangeListener {
@@ -67,16 +72,23 @@ public class MainActivity2 extends BaseFlingActivity implements
 	private static final String TAG = "MainActivity2";
 	private static final int HANDLER_MESSAGE_UPDATE_TIME_WHAT = 0;
 
-	// 孩子在校状态
-	private static final int CHILD_STATUS_IN_SCHOOL = 1;
-	// 孩子未在校状态
-	private static final int CHILD_STATUS_NOT_ENTER_SCHOOL = 2;
-	// 孩子离校
-	private static final int CHILD_STATUS_LEAVE_SCHOOL = 3;
-	// 孩子迟到
-	private static final int CHILD_STATUS_LATE = 4;
-	// 孩子早退
-	private static final int CHILD_STATUS_LEAVE_EARLIER = 5;
+	private static final int CHILD_STATUS_UNKNOW = 0;
+	// 您的小孩未到校
+	private static final int CHILD_STATUS_1_NOT_IN_SCHOOL = 1;
+	// 您的小孩已到校
+	private static final int CHILD_STATUS_1_IN_SCHOOL = 2;
+	// 您的小孩未到校
+	private static final int CHILD_STATUS_2_NOT_IN_SCHOOL = 3;
+	// 您的小孩按时到校
+	private static final int CHILD_STATUS_2_IN_SCHOOL = 4;
+	// 您的小孩迟到了
+	private static final int CHILD_STATUS_2_LATE = 5;
+	// 您的小孩未到校
+	private static final int CHILD_STATUS_3_NOT_IN_SCHOOL = 6;
+	// 您的小孩未离校
+	private static final int CHILD_STATUS_3_IN_SCHOOL = 7;
+	// 您的小孩已离校
+	private static final int CHILD_STATUS_3_HAS_LEAVED = 8;
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -107,7 +119,6 @@ public class MainActivity2 extends BaseFlingActivity implements
 	private List<ChildInfo> childInfoList;
 	private int mCurrentChildId = 0;
 	private String mParentPhone = "0";
-	private List<MessageBean> mMessageList;
 
 	// 处理主页时钟
 	private Handler mTimeUpdateHandler;
@@ -123,7 +134,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 	// ===========================================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main2);
 
 		childInfoList = mUseDatabase.findList("parent_phone=?",
@@ -158,7 +169,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 			// 获取孩子信息
 			new GetChildInfo(this).execute();
 		}
-		super.onCreate(savedInstanceState);
+	
 	}
 
 	@Override
@@ -178,14 +189,11 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 	@Override
 	public void onFlingLeft() {
-		// mTimeBarV3.addDefaultMarkPoint(DateUtil.addDate(DateUtil.stringToDate("10:00",
-		// "HH:mm"), dd++, Calendar.HOUR));
-		// goToInfoPage();
+		
+		 goToInfoPage();
 		// 测试状态变更
-		mTimeBarV3
-				.addMarkPointView(DateUtil.stringToDate("16:00", "HH:mm"), "");
-		mTimeBarV3.refresh();
-		refreshStatus(dd++ % 5 + 1);
+		
+	
 	}
 
 	@Override
@@ -251,8 +259,8 @@ public class MainActivity2 extends BaseFlingActivity implements
 	public void onWifiConnected() {
 		logd("onWifiConnected");
 		toast("onWifiConnected");
-		mTimeBarV3
-				.addMarkPointView(DateUtil.stringToDate("16:00", "HH:mm"), "");
+//		mTimeBarV3
+//				.addMarkPointView(DateUtil.stringToDate("16:00", "HH:mm"), "");
 		mTimeBarV3.refresh();
 	}
 
@@ -302,10 +310,10 @@ public class MainActivity2 extends BaseFlingActivity implements
 		NomalTime nomalTime = mUseDatabase.findOne("id=?",
 				new String[] { mCurrentChildId + "" }, NomalTime.class);
 		if (nomalTime == null) {
-			initTimeBar(DateUtil.stringToDate(schoolStart, "HH:mm"),
+			relayoutTimeBar(DateUtil.stringToDate(schoolStart, "HH:mm"),
 					DateUtil.stringToDate(schoolEnd, "HH:mm"));
 		} else {
-			initTimeBar(DateUtil.stringToDate(nomalTime.getStartTime(),
+			relayoutTimeBar(DateUtil.stringToDate(nomalTime.getStartTime(),
 					AppConst.PATTERN_DATE_TIME_DB), DateUtil.stringToDate(
 					nomalTime.getEndTime(), AppConst.PATTERN_DATE_TIME_DB));
 		}
@@ -320,8 +328,12 @@ public class MainActivity2 extends BaseFlingActivity implements
 			@Override
 			public void OnItemClick(int index, View v, Object tag) {
 				ChildInfo child = (ChildInfo) tag;
+				
 				if (child != null) {
 					logd(child.getName());
+					mCurrentChildId = child.getId();
+					new GetDataTask(MainActivity2.this,mCurrentChildId).execute();
+					new FreshStatusTask(MainActivity2.this,mCurrentChildId).execute();
 				}
 			}
 		});
@@ -339,33 +351,22 @@ public class MainActivity2 extends BaseFlingActivity implements
 			}
 
 		});
-		refreshStatus(1);
+		refreshStatus(0);
 		new GetDataTask(this,mCurrentChildId).execute();
 		new FreshStatusTask(this,mCurrentChildId).execute();
 	}
 
-	private void initTimeBar(Date schoolStart, Date schoolEnd) {
+	private void relayoutTimeBar(Date schoolStart, Date schoolEnd) {
 		Date periodStart = schoolStart;
 		Date periodEnd = schoolEnd;
 
-		Date LimitStart = null;
-		int hourS = DateUtil.getHour(DateUtil.getCalendar(periodStart));
-		if (hourS > 2) {
-			LimitStart = DateUtil
-					.addDate(periodStart, -2, Calendar.HOUR_OF_DAY);
-		} else {
-			LimitStart = DateUtil.dayStart(periodStart);
-		}
-		Date LimitEnd = null;
-		int hourE = DateUtil.getHour(DateUtil.getCalendar(periodStart));
-		if (hourE >= 22) {
-			LimitEnd = DateUtil.addDate(periodEnd, 2, Calendar.HOUR_OF_DAY);
-		} else {
-			LimitEnd = DateUtil.dayEnd(periodEnd);
-		}
+		Date LimitStart = TimeBarV3.getTimeBarStartTimeByNormalTimeStart(periodStart, 2);
+		
+		Date LimitEnd = TimeBarV3.getTimeBarEndTimeByNormalTimeEnd(periodEnd, 2);
+		
 		mTimeBarV3.setLimitTime(LimitStart, LimitEnd);
 		mTimeBarV3.addPeriod(0, periodStart, periodEnd);
-
+		mTimeBarV3.refresh();
 	}
 
 	private void createOrUpdateTitleBar(final List<ChildInfo> childInfoList) {
@@ -375,7 +376,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 					@Override
 					public void onClick(View v) {
 						if (EmptyUtil.isEmpty(childInfoList)) {
-							toast(AppError.USER_WORK_ERROR_NO_CHILD_INFO.message);
+							toast(AppError.USER_ERROR_NO_CHILD_INFO.message);
 						} else {
 							if (!EmptyUtil.isEmpty(childInfoList)) {
 								goToMessageListPage(childInfoList);
@@ -393,6 +394,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 				});
 		if (!EmptyUtil.isEmpty(childInfoList)) {
 			updateTitle(childInfoList);
+			
 		}
 	}
 
@@ -405,6 +407,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 				break;
 			}
 		}
+		mCurrentChildId = childInfoList.get(tmpIndex).getId();
 		if (childInfoList.size() != 1) {// 是否显示下拉图标
 			mTbTitleBar.setTitle(childInfoList.get(tmpIndex).getName(),
 					getDrawableById(R.drawable.arrow_down));
@@ -451,10 +454,10 @@ public class MainActivity2 extends BaseFlingActivity implements
 		startActivity(intent);
 	}
 
-	private void goToMessageDetailPage(int messageId) {
+	private void goToMessageDetailPage(MessageBean messageBean) {
 		Intent intent = new Intent(MainActivity2.this,
 				MessageDetailActivity.class);
-		intent.putExtra(MessageDetailActivity.INTENT_KEY_MESSAGE_ID, messageId);
+		intent.putExtra(MessageDetailActivity.INTENT_KEY_MESSAGE_BEAN, messageBean);
 		startActivity(intent);
 	}
 
@@ -497,27 +500,21 @@ public class MainActivity2 extends BaseFlingActivity implements
 	}
 
 	private void refreshStatus(int status) {
-
+		AlphaAnimation fadeOutAnima=new AlphaAnimation(1,0);
+		fadeOutAnima.setDuration(200);
+		AlphaAnimation fadeInAnima=new AlphaAnimation(0,1);
+		fadeInAnima.setDuration(200);
 		switch (status) {
-		case CHILD_STATUS_IN_SCHOOL:
+		case CHILD_STATUS_UNKNOW:
 			mTvMainWarmingMessage
-					.setText(R.string.main_warming_message_child_in_school);
+			.setText(R.string.main_warming_message_child_in_school);
 			mTvMainWarmingMessage
-					.setTextColor(getColorById(R.color.main_status_green));
-			mRlMainColorBlock.setBackgroundResource(R.color.main_status_green);
-			mTbTitleBar.setBackgroundResource(R.color.main_status_green);
+			.setTextColor(getColorById(R.color.lightgrey));
+			mRlMainColorBlock.setBackgroundResource(R.color.lightgrey);
+			mTbTitleBar.setBackgroundResource(R.color.lightgrey);
 			mIvMainChildStatus.setImageResource(R.drawable.main_in_school);
 			break;
-		case CHILD_STATUS_NOT_ENTER_SCHOOL:
-			mTvMainWarmingMessage
-					.setText(R.string.main_warming_message_child_not_in_school);
-			mTvMainWarmingMessage
-					.setTextColor(getColorById(R.color.main_status_yellow));
-			mRlMainColorBlock.setBackgroundResource(R.color.main_status_yellow);
-			mTbTitleBar.setBackgroundResource(R.color.main_status_yellow);
-			mIvMainChildStatus.setImageResource(R.drawable.main_not_in_school);
-			break;
-		case CHILD_STATUS_LEAVE_SCHOOL:
+		case CHILD_STATUS_1_NOT_IN_SCHOOL:
 			mTvMainWarmingMessage
 					.setText(R.string.main_warming_message_child_not_in_school);
 			mTvMainWarmingMessage
@@ -526,7 +523,34 @@ public class MainActivity2 extends BaseFlingActivity implements
 			mTbTitleBar.setBackgroundResource(R.color.main_status_yellow);
 			mIvMainChildStatus.setImageResource(R.drawable.main_leave_school);
 			break;
-		case CHILD_STATUS_LATE:
+		case CHILD_STATUS_1_IN_SCHOOL:
+			mTvMainWarmingMessage
+					.setText(R.string.main_warming_message_child_in_school);
+			mTvMainWarmingMessage
+					.setTextColor(getColorById(R.color.main_status_green));
+			mRlMainColorBlock.setBackgroundResource(R.color.main_status_green);
+			mTbTitleBar.setBackgroundResource(R.color.main_status_green);
+			mIvMainChildStatus.setImageResource(R.drawable.main_in_school);
+			break;
+		case CHILD_STATUS_2_NOT_IN_SCHOOL:
+			mTvMainWarmingMessage
+				.setText(R.string.main_warming_message_child_not_in_school);
+			mTvMainWarmingMessage
+					.setTextColor(getColorById(R.color.main_status_yellow));
+			mRlMainColorBlock.setBackgroundResource(R.color.main_status_yellow);
+			mTbTitleBar.setBackgroundResource(R.color.main_status_yellow);
+			mIvMainChildStatus.setImageResource(R.drawable.main_leave_school);
+			break;
+		case CHILD_STATUS_2_IN_SCHOOL:
+			mTvMainWarmingMessage
+				.setText(R.string.main_warming_message_child_in_school_in_time);
+			mTvMainWarmingMessage
+					.setTextColor(getColorById(R.color.main_status_green));
+			mRlMainColorBlock.setBackgroundResource(R.color.main_status_green);
+			mTbTitleBar.setBackgroundResource(R.color.main_status_green);
+			mIvMainChildStatus.setImageResource(R.drawable.main_in_school);
+			break;
+		case CHILD_STATUS_2_LATE:
 			mTvMainWarmingMessage
 					.setText(R.string.main_warming_message_child_late);
 			mTvMainWarmingMessage
@@ -535,13 +559,31 @@ public class MainActivity2 extends BaseFlingActivity implements
 			mTbTitleBar.setBackgroundResource(R.color.main_status_red);
 			mIvMainChildStatus.setImageResource(R.drawable.main_not_in_school);
 			break;
-		case CHILD_STATUS_LEAVE_EARLIER:
+		case CHILD_STATUS_3_NOT_IN_SCHOOL:
 			mTvMainWarmingMessage
-					.setText(R.string.main_warming_message_child_leave_earlier);
+			.setText(R.string.main_warming_message_child_not_in_school);
 			mTvMainWarmingMessage
-					.setTextColor(getColorById(R.color.main_status_red));
-			mRlMainColorBlock.setBackgroundResource(R.color.main_status_red);
-			mTbTitleBar.setBackgroundResource(R.color.main_status_red);
+					.setTextColor(getColorById(R.color.main_status_yellow));
+			mRlMainColorBlock.setBackgroundResource(R.color.main_status_yellow);
+			mTbTitleBar.setBackgroundResource(R.color.main_status_yellow);
+			mIvMainChildStatus.setImageResource(R.drawable.main_leave_school);
+			break;
+		case CHILD_STATUS_3_IN_SCHOOL:
+			mTvMainWarmingMessage
+				.setText(R.string.main_warming_message_child_has_not_leave_school);
+			mTvMainWarmingMessage
+					.setTextColor(getColorById(R.color.main_status_green));
+			mRlMainColorBlock.setBackgroundResource(R.color.main_status_green);
+			mTbTitleBar.setBackgroundResource(R.color.main_status_green);
+			mIvMainChildStatus.setImageResource(R.drawable.main_in_school);
+			break;
+		case CHILD_STATUS_3_HAS_LEAVED:
+			mTvMainWarmingMessage
+					.setText(R.string.main_warming_message_child_has_leave_school);
+			mTvMainWarmingMessage
+					.setTextColor(getColorById(R.color.main_status_green));
+			mRlMainColorBlock.setBackgroundResource(R.color.main_status_green);
+			mTbTitleBar.setBackgroundResource(R.color.main_status_green);
 			mIvMainChildStatus.setImageResource(R.drawable.main_leave_school);
 			break;
 		default:
@@ -600,6 +642,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 	}
 
+
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
@@ -631,14 +674,12 @@ public class MainActivity2 extends BaseFlingActivity implements
 		@Override
 		protected List<MessageBean> realDoInBackground(Void... params)
 				throws Exception {
-			// TODO 记住实际时去掉
-			childId = 1;
 			if (childId == 0) {
 				loge("获取消息列表时无法得到孩子id");
 			}
 			Pagination<MessageBean> messagePagination = null;
 			messagePagination = mHttpDataProvider.getNoticeDetail(
-					childId, mParentPhone, 2, 1);
+					childId, mParentPhone, 1, 1);
 			return messagePagination.getData();
 			// return messagePagination.getDataList();
 		}
@@ -651,6 +692,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 				updateMessageBlock(result);
 				for(MessageBean messageBean : result){
 					messageBean.setChildId(childId);
+					messageBean.setId(messageBean.getId()*100+childId);
 				}
 				mUseDatabase.insertOrUpdate(result);
 			}
@@ -674,8 +716,8 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 					@Override
 					public void onClick(View v) {
-						MessageDetail md = (MessageDetail) v.getTag();
-						goToMessageDetailPage(md.getId());
+						MessageBean mb = (MessageBean) v.getTag();
+						goToMessageDetailPage(mb);
 					}
 				});
 				mLlMainMessageContainer.addView(linearLayout);
@@ -686,7 +728,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 		@Override
 		protected void onError(Exception e) {
-			toast(e.getMessage());
+			MainActivity2.this.onError(e);
 		}
 
 	}
@@ -700,7 +742,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 			AsyncTaskBase<Void, Void, Map<String, Object>> {
 		private static final String KEY_CHILDCAPTUREINFO = "ChildCaptureInfo";
 		private static final String KEY_NOMALTIME = "nomalTime";
-
+		private static final String KEY_CHILDSTATE = "keyChildstate";
 		private Integer childId;
 		public FreshStatusTask(Context context,Integer childId) {
 			super(context);
@@ -716,8 +758,6 @@ public class MainActivity2 extends BaseFlingActivity implements
 		@Override
 		protected Map<String, Object> realDoInBackground(Void... params)
 				throws Exception {
-			// TODO 记住实际时去掉
-
 			if (childId == 0) {
 				loge("获取消息列表时无法得到孩子id");
 			}
@@ -725,8 +765,18 @@ public class MainActivity2 extends BaseFlingActivity implements
 			NomalTime nomalTime = mHttpDataProvider
 					.getNomalTime(childId);
 			result.put(KEY_NOMALTIME, nomalTime);
-			List<ChildCaptureInfo> childCaptureInfoList = new ArrayList<ChildCaptureInfo>();// mHttpDataProvider.getDayCaptureInfo(mCurrentChildId);
-			result.put(KEY_CHILDCAPTUREINFO, childCaptureInfoList);
+			Date proidStart=DateUtil.stringToDate(nomalTime.getStartTime(),AppConst.PATTERN_DATE_TIME_FROM_NET);
+			Date proidEnd=DateUtil.stringToDate(nomalTime.getEndTime(),AppConst.PATTERN_DATE_TIME_FROM_NET);
+
+			Date limitedStart = TimeBarV3.getTimeBarStartTimeByNormalTimeStart(proidStart, 2);
+			Date limitedEnd = TimeBarV3.getTimeBarEndTimeByNormalTimeEnd(proidEnd, 2);
+			ChildState childState = mHttpDataProvider.getChildState(childId, mParentPhone);
+			result.put(KEY_CHILDSTATE, childState);
+			
+			Pagination<ChildCaptureInfo> childCaptureInfoList = mHttpDataProvider
+					.getChildRecord(childId, mParentPhone, 
+							limitedStart, limitedEnd, Integer.MAX_VALUE, 1);
+			result.put(KEY_CHILDCAPTUREINFO, childCaptureInfoList.getData());
 			try {
 				Thread.sleep(300);
 			} catch (InterruptedException e) {
@@ -741,16 +791,20 @@ public class MainActivity2 extends BaseFlingActivity implements
 			List<ChildCaptureInfo> childCaptureInfoList = (List<ChildCaptureInfo>) result
 					.get(KEY_CHILDCAPTUREINFO);
 			NomalTime nomalTime = (NomalTime) result.get(KEY_NOMALTIME);
+			ChildState childState = (ChildState) result.get(KEY_CHILDSTATE);
+			
+			refreshStatus(childState.getState());
+			
 			nomalTime.setId(childId);
 			mUseDatabase.insertOrUpdate(nomalTime);
 			Date periodStart = DateUtil.stringToDate(nomalTime.getStartTime(),
 					AppConst.PATTERN_DATE_TIME_FROM_NET);
-			Date periodEnd = DateUtil.stringToDate(nomalTime.getStartTime(),
+			Date periodEnd = DateUtil.stringToDate(nomalTime.getEndTime(),
 					AppConst.PATTERN_DATE_TIME_FROM_NET);
-			initTimeBar(periodStart, periodEnd);
+			relayoutTimeBar(periodStart, periodEnd);
 			for (ChildCaptureInfo cci : childCaptureInfoList) {
-				mTimeBarV3.addMarkPointView(cci.getCaptureTime(),
-						cci.getCaptureUrl());
+				mTimeBarV3.addMarkPointView(cci.getTime(),
+						cci.getPicUrl(),cci.getState());
 			}
 
 			if (mPtrsvMainScrollView != null
@@ -766,8 +820,11 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 		@Override
 		protected void onError(Exception e) {
-			toast(e.getMessage());
-
+			MainActivity2.this.onError(e);
+			if (mPtrsvMainScrollView != null
+					&& mPtrsvMainScrollView.isRefreshing()) {
+				mPtrsvMainScrollView.onRefreshComplete();
+			}
 		}
 	}
 
@@ -807,9 +864,9 @@ public class MainActivity2 extends BaseFlingActivity implements
 		protected void onError(Exception e) {
 			MainActivity2.this.onError(e);
 		}
-
 	}
 
+	
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
