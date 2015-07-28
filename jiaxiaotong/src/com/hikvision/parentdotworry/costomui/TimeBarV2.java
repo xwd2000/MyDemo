@@ -2,17 +2,9 @@ package com.hikvision.parentdotworry.costomui;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.http.util.Asserts;
-
-import junit.framework.Assert;
-
-import com.hikvision.parentdotworry.R;
-import com.hikvision.parentdotworry.utils.DateUtil;
-import com.hikvision.parentdotworry.utils.ImageUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -28,31 +20,27 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.hikvision.parentdotworry.R;
+import com.hikvision.parentdotworry.utils.DateUtil;
+import com.hikvision.parentdotworry.utils.ImageUtils;
+
 public class TimeBarV2 extends LinearLayout {
 
 	// ===========================================================
 	// Constants
 	// ===========================================================
 
-	private static final String TAG = "TimeBarV2";
 
 	// ===========================================================
 	// Fields
 	// ===========================================================
 	private ImageView mIvTimeLine;
-	private int mLineWidth = 0;
-	private ImageView mIvTimeLineNeedInSchool;
-	private ImageView mIvSmallCircleEnterSchool;
-	private ImageView mIvSmallCircleLeaveSchool;
 
-	private TextView mTvTimeEnterSchool;
-	private TextView mTvTimeLeaveSchool;
 	private RelativeLayout mRlLineContainer;
 	private RelativeLayout mRlTimePicContainer;
 	private RelativeLayout mRlTimeTextContainer;
 
 	private List<MarkPointData> mMarkPointList;
-	private List<MarkPointViews> mMarkPointViewList;
 
 	private List<Period> mPeriodList;
 
@@ -85,7 +73,6 @@ public class TimeBarV2 extends LinearLayout {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		mLineWidth = mIvTimeLine.getMeasuredWidth();
 	}
 
 	@Override
@@ -104,17 +91,7 @@ public class TimeBarV2 extends LinearLayout {
 				R.layout.time_bar_v2, this);
 		mIvTimeLine = (ImageView) linearLayout
 				.findViewById(R.id.iv_main_time_line);
-		mIvTimeLineNeedInSchool = (ImageView) linearLayout
-				.findViewById(R.id.iv_main_time_line_need_in_school);
-		mIvSmallCircleEnterSchool = (ImageView) linearLayout
-				.findViewById(R.id.iv_main_small_circle1);
-		mIvSmallCircleLeaveSchool = (ImageView) linearLayout
-				.findViewById(R.id.iv_main_small_circle2);
 
-		mTvTimeEnterSchool = (TextView) linearLayout
-				.findViewById(R.id.tv_time_bar_school_time_in);
-		mTvTimeLeaveSchool = (TextView) linearLayout
-				.findViewById(R.id.tv_time_bar_school_time_out);
 
 		mRlLineContainer = (RelativeLayout) findViewById(R.id.rl_line_container);
 		mRlTimePicContainer = (RelativeLayout) findViewById(R.id.rl_time_pic_container);
@@ -143,7 +120,7 @@ public class TimeBarV2 extends LinearLayout {
 		newPeriod.setEnd(end);
 		newPeriod.setStart(start);
 		if (mPeriodList == null)
-			mPeriodList = new ArrayList();
+			mPeriodList = new ArrayList<Period>();
 		mPeriodList.add(newPeriod);
 
 		mIvTimeLine.getViewTreeObserver().addOnGlobalLayoutListener(
@@ -211,7 +188,7 @@ public class TimeBarV2 extends LinearLayout {
 		mpd.setMarkPointDrawable(mContext.getResources().getDrawable(
 				R.drawable.picture_box));
 				if(mMarkPointList==null){
-				mMarkPointList=new ArrayList();
+				mMarkPointList=new ArrayList<MarkPointData>();
 				}
 				mMarkPointList.add(mpd);
 		addMarkPointView(mpd);

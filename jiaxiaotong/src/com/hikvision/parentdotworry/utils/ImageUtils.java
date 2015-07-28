@@ -4,6 +4,7 @@ package com.hikvision.parentdotworry.utils;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -16,6 +17,8 @@ import android.graphics.RectF;
 import android.graphics.Shader.TileMode;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.FrameLayout;
 
 public class ImageUtils {
 	private static final String TAG = "ImageUtils";
@@ -240,5 +243,51 @@ public class ImageUtils {
 				+ reflectionGap, paint);
 
 		return bitmapWithReflection;
+	}
+	
+	
+	public static Bitmap generateCircleBitmap(int radius,int color){
+		Paint paint = new Paint();
+		
+		int circleWidth=2*radius;
+		int circleHeight=2*radius;
+		
+		Bitmap bitmap=Bitmap.createBitmap(circleWidth, 
+				circleHeight, Config.ARGB_8888);
+		Canvas canvas=new Canvas(bitmap);
+		canvas.drawColor(Color.TRANSPARENT,Mode.DST);
+		
+		//红色
+		paint.setColor(color);
+		canvas.drawCircle(circleWidth/2, 
+				circleHeight/2, 
+				circleWidth/2, paint);
+		return bitmap;
+	}
+	
+	/**
+	 * 绘制有缺口的圆环,用做等待框的圈
+	 * @param radius
+	 * @param color
+	 * @return
+	 */
+	public static Bitmap generateArcBitmap(int radius,int radiusSmall,int color){
+		Paint paint = new Paint();
+		
+		int circleWidth=2*radius;
+		int circleHeight=2*radius;
+		
+		Bitmap bitmap=Bitmap.createBitmap(circleWidth, 
+				circleHeight, Config.ARGB_8888);
+		Canvas canvas=new Canvas(bitmap);
+		canvas.drawColor(Color.TRANSPARENT,Mode.DST);
+		
+		//红色
+		paint.setColor(color);
+		canvas.drawArc(new RectF(0,0, circleWidth, circleHeight), 0, 340, true, paint);
+
+		paint.setXfermode(new PorterDuffXfermode(Mode.DST_OUT));
+		canvas.drawArc(new RectF(radius-radiusSmall,radius-radiusSmall, radius+radiusSmall, radius+radiusSmall), 0, 340, true, paint);
+		return bitmap;
 	}
 }

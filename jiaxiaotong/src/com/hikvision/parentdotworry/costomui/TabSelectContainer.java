@@ -12,25 +12,16 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationSet;
-import android.view.animation.AnticipateInterpolator;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.hikvision.parentdotworry.utils.DateUtil;
 import com.hikvision.parentdotworry.utils.EmptyUtil;
 import com.hikvision.parentdotworry.utils.ScreenUtil;
 
@@ -47,7 +38,6 @@ public class TabSelectContainer extends HorizontalScrollView {
 	
 	
 	
-	private static final int INDICATOR_MOVE_DURATION = 200; // 滑块滚动时间
 	private static final String TAG = "TabSelectContainer";
 
 	private LinearLayout mLlContainer;// 放按钮的容器

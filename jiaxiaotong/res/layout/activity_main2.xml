@@ -78,7 +78,7 @@
             </RelativeLayout>
 
             <TextView
-                android:id="@+id/tv_main_warming_message"
+                android:id="@+id/tv_main_warninging_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -86,7 +86,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/main_notice_leave_school"
                 android:textColor="@color/main_status_green"
-                android:textSize="@dimen/main_warm_text_size" />
+                android:textSize="@dimen/main_warning_text_size" />
 
             <com.hikvision.parentdotworry.costomui.TimeBarV3
                 android:id="@+id/tb_main_timebar"

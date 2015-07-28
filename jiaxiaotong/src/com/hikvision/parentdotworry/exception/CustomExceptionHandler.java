@@ -12,6 +12,7 @@ import com.hikvision.parentdotworry.utils.ActivityUtils;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 public class CustomExceptionHandler implements UncaughtExceptionHandler {
 	private UncaughtExceptionHandler defaultUEH;
@@ -25,11 +26,11 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
 	@Override
 	public void uncaughtException(Thread thread, Throwable ex) {
 		if(ex instanceof ClientProtocolException){
-			ActivityUtils.toast(context,ex.getMessage());
+			Toast.makeText(context,ex.getMessage(),Toast.LENGTH_SHORT).show();
 			return;
 		}
 		if(ex instanceof ServerResponseErrorException){
-			ActivityUtils.toast(context,ex.getMessage());
+			Toast.makeText(context,ex.getMessage(),Toast.LENGTH_SHORT).show();
 			return;
 		}
 		

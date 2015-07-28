@@ -5,7 +5,6 @@ import java.util.Random;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
@@ -15,18 +14,14 @@ import android.view.SurfaceView;
 import android.widget.TextView;
 
 import com.hikvision.parentdotworry.utils.AudioPlayUtil;
-import com.videogo.constant.IntentConsts;
 import com.videogo.demo.DemoRealPlayer;
 import com.videogo.openapi.bean.resp.CameraInfo;
 import com.videogo.realplay.RealPlayMsg;
 import com.videogo.realplay.RealPlayStatus;
 import com.videogo.realplay.RealPlayerHelper;
 import com.videogo.realplay.RealPlayerManager;
-import com.videogo.util.ConnectionDetector;
 import com.videogo.util.LocalInfo;
 import com.videogo.util.LogUtil;
-import com.videogo.util.RotateViewUtil;
-import com.videogo.util.Utils;
 import com.videogo.voicetalk.VoiceTalkManager;
 
 public class VideoPlay implements Callback,Handler.Callback{

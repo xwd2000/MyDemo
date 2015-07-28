@@ -17,12 +17,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true" />
 	<TextView 
-	    android:id="@+id/tv_warm_bar"
+	    android:id="@+id/tv_warning_bar"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:gravity="center"
-	    android:background="@drawable/main_warm_text_view_background"
-	    android:text="@string/main_warm_network_unavliable"
+	    android:background="@drawable/main_warning_text_view_background"
+	    android:text="@string/main_warning_network_unavliable"
 	    android:textColor="@color/darkgray"
 	    android:padding="7dp"
 	    android:layout_below="@+id/tb_title_bar"
@@ -32,13 +32,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/tv_warm_bar"
+        android:layout_below="@+id/tv_warning_bar"
         android:background="@drawable/ic_launcher" />
 	  <Button
         android:id="@+id/bt_setting1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_warm_bar"
+        android:layout_below="@+id/tv_warning_bar"
         android:layout_toRightOf="@+id/bt_setting0"
         android:background="@drawable/play_balanced" />
     <Button
@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/tv_warm_bar"
+        android:layout_below="@+id/tv_warning_bar"
         android:background="@drawable/ic_launcher" />
 
     <RelativeLayout
@@ -101,17 +101,17 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/tv_parent_warm_message"
+        android:id="@+id/tv_parent_warning_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_digital_time"
         android:layout_centerHorizontal="true"
-        android:text="@string/parent_warm_message" />
+        android:text="@string/parent_warning_message" />
     <!-- <RelativeLayout -->
     <!-- android:layout_width="match_parent" -->
     <!-- android:layout_height="match_parent" -->
     <!-- android:background="@color/azure" -->
-    <!-- android:layout_below="@+id/tv_parent_warm_message" -->
+    <!-- android:layout_below="@+id/tv_parent_warning_message" -->
     <!-- android:layout_above="@+id/ll_bottom_bar" -->
     <!-- android:orientation="horizontal"> -->
     <!-- <com.hikvision.parentdotworry.costomui.SquareLineButton -->
@@ -131,7 +131,7 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_above="@+id/ll_bottom_bar"
-        android:layout_below="@+id/tv_parent_warm_message"
+        android:layout_below="@+id/tv_parent_warning_message"
         android:background="@color/azure" >
     </com.hikvision.parentdotworry.costomui.TimeBar>
 

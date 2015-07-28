@@ -3,11 +3,11 @@ package com.hikvision.parentdotworry.costomui;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
@@ -34,7 +34,7 @@ import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.ImageS
 import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.QueueProcessingType;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.hikvision.parentdotworry.utils.EmptyUtil;
-import com.hikvision.parentdotworry.utils.ListUtil;
+import com.hikvision.parentdotworry.utils.ImageUtils;
 
 
 /**
@@ -66,6 +66,10 @@ public class SlideShowView extends FrameLayout {
     private List<ImageView> imageViewsList;
     //放圆点的View的list
     private List<View> dotViewsList;
+
+    private Bitmap bmDotBlur;
+
+    private Bitmap bmDotFocus;
     
     private ViewPagerInToughView viewPager;
     //当前轮播页
@@ -120,6 +124,11 @@ public class SlideShowView extends FrameLayout {
         imageViewsList = new ArrayList<ImageView>();
         dotViewsList = new ArrayList<View>();
         this.adList = adList;
+        
+        int dotSize=context.getResources().getDimensionPixelSize(R.dimen.message_list_adv_slide_dot_size);
+
+        bmDotBlur = ImageUtils.generateCircleBitmap(dotSize/2, Color.argb(100, 255, 255, 255));
+        bmDotFocus = ImageUtils.generateCircleBitmap(dotSize/2, Color.argb(255, 255, 255, 255));
         // 一步任务获取图片
         initUI(context);
     }
@@ -145,12 +154,16 @@ public class SlideShowView extends FrameLayout {
         	imageViewsList.add(view);
         	
         	ImageView dotView =  new ImageView(context);
-        	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-        	params.leftMargin = 4;
-			params.rightMargin = 4;
-			dotView.setBackgroundResource(R.drawable.dot_blur);
+        	int dotSize=context.getResources().getDimensionPixelSize(R.dimen.message_list_adv_slide_dot_size);
+        	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+        			dotSize,
+        			dotSize);
+        	params.leftMargin = dotSize/6;
+			params.rightMargin = dotSize/6;
+			
+			dotView.setImageBitmap(bmDotBlur);
 			if(i==0){
-				dotView.setBackgroundResource(R.drawable.dot_focus);
+				dotView.setImageBitmap(bmDotFocus);
 			}
 			dotLayout.addView(dotView, params);
         	dotViewsList.add(dotView);
@@ -281,9 +294,9 @@ public class SlideShowView extends FrameLayout {
             currentItem = pos;
             for(int i=0;i < dotViewsList.size();i++){
                 if(i == pos){
-                    ((View)dotViewsList.get(pos)).setBackgroundResource(R.drawable.dot_focus);
+                    ((ImageView)dotViewsList.get(pos)).setImageBitmap(bmDotFocus);
                 }else {
-                    ((View)dotViewsList.get(i)).setBackgroundResource(R.drawable.dot_blur);
+                    ((ImageView)dotViewsList.get(i)).setImageBitmap(bmDotBlur);
                 }
             }
            
@@ -317,7 +330,7 @@ public class SlideShowView extends FrameLayout {
      * 销毁ImageView资源，回收内存
      * 
      */
-    private void destoryBitmaps() {
+    public void destoryBitmaps() {
     	if(EmptyUtil.isEmpty(adList)){
     		return;
     	}

@@ -119,7 +119,29 @@
         <item name="android:layout_marginRight">15dp</item>
         <item name="android:textSize">@dimen/login_input_label_text_size</item>
         <item name="android:background">@android:color/transparent</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:maxLength">15</item>
     </style>
+    
+    <style name="change_pwd_input_edit_text">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textSize">@dimen/change_pwd_input_label_text_size</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:maxLength">15</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:textColorHint">@color/change_pwd_input_hint_color</item>
+        
+    </style>
+    <style name="change_pwd_input_edit_text_clear_x">
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginRight">6dp</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:src">@drawable/x</item>
+    </style>
+    
+
 <!-- <item name="android:windowEnterAnimation">@anim/fade_up</item> -->
 
 <!-- <item name="android:windowExitAnimation">@anim/fade_down</item> -->

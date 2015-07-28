@@ -1,37 +1,24 @@
 package com.hikvision.parentdotworry;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.widget.Button;
-import android.widget.HorizontalScrollView;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.TabWidget;
 
 import com.hikvision.parentdotworry.application.AppConfig;
 import com.hikvision.parentdotworry.base.BaseFragmentActivity;
 import com.hikvision.parentdotworry.bean.ChildInfo;
 import com.hikvision.parentdotworry.bean.MessageBean;
 import com.hikvision.parentdotworry.costomui.MessageViewPaper;
-import com.hikvision.parentdotworry.costomui.TabSelectContainer;
-import com.hikvision.parentdotworry.costomui.TabSelectContainer.OnTabChangedListener;
 import com.hikvision.parentdotworry.costomui.TitleBar;
 import com.hikvision.parentdotworry.costomui.tabview.SlidingTabLayout;
 import com.hikvision.parentdotworry.dataprovider.HttpDataProvider;
 import com.hikvision.parentdotworry.utils.EmptyUtil;
-import com.hikvision.parentdotworry.utils.ScreenUtil;
 
 public class MessageListActivity2 extends BaseFragmentActivity {
 
@@ -128,7 +115,7 @@ public class MessageListActivity2 extends BaseFragmentActivity {
 					public void onItemClick(View view, MessageBean dataBean, long id) {
 						Intent intent= new Intent(MessageListActivity2.this,MessageDetailActivity.class);
 						intent.putExtra(MessageDetailActivity.INTENT_KEY_MESSAGE_BEAN, dataBean);
-						mHttpDataProvider.getMessageDetailById(dataBean.getId());
+						
 						startActivity(intent);
 						
 					}

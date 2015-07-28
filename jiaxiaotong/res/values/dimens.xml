@@ -25,12 +25,13 @@
     
     <dimen name="common_title_text_size">18sp</dimen>
     <dimen name="common_title_height">44dp</dimen>
+    <dimen name="common_wait_dialog_ring_radius">18dp</dimen>
     
     
     <dimen name="main_title_button_width_height">24dp</dimen>
     <dimen name="main_time_text_size">26sp</dimen>
     <dimen name="main_time_tail_text_size">14sp</dimen>
-    <dimen name="main_warm_text_size">17sp</dimen>
+    <dimen name="main_warning_text_size">17sp</dimen>
     <dimen name="main_item_title_height">44dp</dimen>
     <dimen name="main_item_title_icon_height">23dp</dimen>
     <dimen name="main_item_title_icon_width">24dp</dimen>
@@ -47,6 +48,7 @@
     <dimen name="message_list_item_pic_height">67dp</dimen>
     <dimen name="message_list_item_title_text_size">16sp</dimen>
     <dimen name="message_list_item_time_department_text_size">12sp</dimen>
+    <dimen name="message_list_adv_slide_dot_size">10dp</dimen>
     
     
     <dimen name="message_detail_title_text_size">17sp</dimen>
@@ -66,5 +68,12 @@
     
    <dimen name="video_list_device_name_text_size">16sp</dimen>
    <dimen name="video_list_item_padding_left_right">6dp</dimen>
+   
+   
+   <dimen name="change_pwd_input_height">44dp</dimen>
+   <dimen name="change_pwd_clear_button_width">20dp</dimen>
+   <dimen name="change_pwd_clear_button_height">44dp</dimen>
+   <dimen name="change_pwd_input_label_text_size">15sp</dimen>
+   
     
 </resources>

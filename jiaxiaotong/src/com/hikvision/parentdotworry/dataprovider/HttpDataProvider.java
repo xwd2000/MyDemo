@@ -1,22 +1,16 @@
 package com.hikvision.parentdotworry.dataprovider;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import android.provider.CalendarContract.Calendars;
-
-import com.hikvision.parentdotworry.bean.ChildInfo;
 import com.hikvision.parentdotworry.bean.ChildCaptureInfo;
+import com.hikvision.parentdotworry.bean.ChildInfo;
 import com.hikvision.parentdotworry.bean.LoginInfo;
 import com.hikvision.parentdotworry.bean.MessageBean;
-import com.hikvision.parentdotworry.bean.MessageDetail;
 import com.hikvision.parentdotworry.bean.Parent;
-import com.hikvision.parentdotworry.consts.AppConst;
-import com.hikvision.parentdotworry.consts.SexConst;
 import com.hikvision.parentdotworry.utils.DateUtil;
 
 public class HttpDataProvider {
@@ -41,11 +35,6 @@ public class HttpDataProvider {
 		return dataList;
 	}
 	
-	public List<MessageDetail> getMessagePageWithDetail(int childId,int pageNum,int pageSize){
-		List<MessageDetail> dataList=new ArrayList<MessageDetail>();
-		
-		return dataList;
-	}
 	
 	public List<ChildInfo> getChildrenByParentId(int parentId){
 		try {
@@ -79,11 +68,7 @@ public class HttpDataProvider {
 		return sortingList;
 	}
 	
-	public MessageDetail getMessageDetailById(int messageId){
-		MessageDetail md=new MessageDetail();
-		
-		return md;
-	}
+	
 	
 	public String getCapturedEnterPic(int childId){
 		return urls[childId%urls.length];

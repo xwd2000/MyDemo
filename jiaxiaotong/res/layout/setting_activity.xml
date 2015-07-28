@@ -14,8 +14,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/tb_title_bar" >
-
-        <LinearLayout
+		<LinearLayout 
+		    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+            <LinearLayout
             android:id="@+id/ll_setting_group_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -104,6 +107,18 @@
                         android:gravity="right|center_horizontal" />
                 </LinearLayout>
             </LinearLayout>
+        </LinearLayout>
+          <Button
+            android:id="@+id/bt_logout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:background="@drawable/login_login_button_background"
+            android:onClick="onClick"
+            android:padding="15dp"
+            android:text="@string/logout"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/login_login_button_text_size" />
         </LinearLayout>
     </com.handmark.pulltorefresh.library.PullToRefreshScrollView>
 

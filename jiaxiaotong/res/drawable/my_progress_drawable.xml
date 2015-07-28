@@ -3,14 +3,15 @@
         android:fromDegrees="0" android:toDegrees="360">
     <shape
         android:shape="ring"
-        android:innerRadiusRatio="3"
-        android:thicknessRatio="8"
+        android:innerRadius="@dimen/common_wait_dialog_ring_radius"
+
+        android:thicknessRatio="17"
         android:useLevel="false">
     <gradient
         android:type="sweep"
         android:useLevel="false"
         android:startColor="@color/white" 
-        android:endColor="@color/black"
+        android:endColor="@color/main_status_green"
         android:centerY="0.50" />
     </shape>
 </rotate>

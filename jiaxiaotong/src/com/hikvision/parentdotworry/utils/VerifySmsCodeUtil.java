@@ -30,7 +30,7 @@ import android.widget.EditText;
 
 import com.hikvision.parentdotworry.R;
 import com.hikvision.parentdotworry.costomui.WaitDialog;
-import com.hikvision.parentdotworry.dataprovider.httpdata.util.ParamUtils;
+import com.hikvision.parentdotworry.dataprovider.httpdata.util.EzParamUtils;
 import com.videogo.exception.BaseException;
 import com.videogo.exception.ErrorCode;
 import com.videogo.openapi.EzvizAPI;
@@ -63,7 +63,7 @@ public class VerifySmsCodeUtil {
                 String getSmsCodeSign = signEt.getText().toString();
                 String phone = phoneEt.getText().toString();
                 if(TextUtils.isEmpty(getSmsCodeSign) && !TextUtils.isEmpty(phone)) {
-                    getSmsCodeSign = ParamUtils.getGetSmsCodeSign(phone);
+                    getSmsCodeSign = EzParamUtils.getGetSmsCodeSign(phone);
                 }
                 new GetSmsCodeTask(type, context).execute(getSmsCodeSign);
             }

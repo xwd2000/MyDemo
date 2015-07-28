@@ -74,13 +74,13 @@ public class MainActivity extends BaseFlingActivity implements View.OnClickListe
 				}
 			};
 		}).start();
-		TextView tv = (TextView) findViewById(R.id.tv_warm_bar);
+		TextView tv = (TextView) findViewById(R.id.tv_warning_bar);
 		tv.setVisibility(View.GONE);
 		findViewById(R.id.bt_setting0).setOnClickListener(
 				new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						TextView tv = (TextView) findViewById(R.id.tv_warm_bar);
+						TextView tv = (TextView) findViewById(R.id.tv_warning_bar);
 						tv.setVisibility(tv.getVisibility() == View.GONE ? View.VISIBLE
 								: View.GONE);
 

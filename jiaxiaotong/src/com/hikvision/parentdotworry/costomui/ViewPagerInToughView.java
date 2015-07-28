@@ -3,15 +3,11 @@ package com.hikvision.parentdotworry.costomui;
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
-import android.widget.OverScroller;
 
 public class ViewPagerInToughView extends ViewPager{
-private static final String TAG = "ViewPagerInToughView";
 	
 
 

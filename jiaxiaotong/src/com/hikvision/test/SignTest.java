@@ -17,8 +17,7 @@ public class SignTest {
 		params.put("childId", 1);
 		params.put("code", 123456);
 		rp.setParams(params);
-		rp = ParamUtils.signRequest(rp);
-		System.out.println(rp);
+
 	}
 
 }

@@ -2,13 +2,12 @@ package com.hikvision.parentdotworry.base;
 
 import org.apache.log4j.Logger;
 
-import com.hikvision.parentdotworry.application.AppApplication;
-
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.widget.Toast;
+
+import com.hikvision.parentdotworry.application.AppApplication;
 
 public class BaseFragmentActivity extends FragmentActivity{
 	private Logger logger;

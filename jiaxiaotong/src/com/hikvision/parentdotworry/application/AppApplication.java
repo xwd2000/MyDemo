@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.os.Build.VERSION;
 
 import com.hikvision.parentdotworry.R;
+import com.hikvision.parentdotworry.dataprovider.httpdata.HttpDataProvider;
 import com.hikvision.parentdotworry.exception.CustomExceptionHandler;
 import com.hikvision.parentdotworry.plug.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.hikvision.parentdotworry.plug.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -41,13 +42,8 @@ import com.hikvision.parentdotworry.plug.universalimageloader.core.ImageLoaderCo
 import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.ImageScaleType;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.QueueProcessingType;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.display.FadeInBitmapDisplayer;
-import com.hikvision.parentdotworry.plug.universalimageloader.core.display.RoundedBitmapDisplayer;
-import com.hikvision.parentdotworry.plug.universalimageloader.core.process.BitmapProcessor;
-import com.hikvision.parentdotworry.plug.universalimageloader.utils.StorageUtils;
-import com.hikvision.parentdotworry.utils.ApacheImageDownloader;
+import com.hikvision.parentdotworry.plug.universalimageloader.core.download.BaseImageDownloader;
 import com.hikvision.parentdotworry.utils.Args;
-import com.hikvision.parentdotworry.utils.ImageUtils;
-import com.hikvision.parentdotworry.utils.ScreenUtil;
 import com.videogo.constant.Config;
 import com.videogo.openapi.EzvizAPI;
 
@@ -60,14 +56,11 @@ import de.mindpipe.android.logging.log4j.LogConfigurator;
  * @data 2014-7-12
  */
 public class AppApplication extends Application {
-	// 开放平台申请的APP key & secret key
-	// open
-	// public static String APP_KEY = "8698d52f6ac34929b5286698fe7a10e8";
-	// public static String SECRET_KEY = "32be2dea4158a84ef4294a126038c90f";
-	// APP Key： d185b8544d81482f81094d45d53ecccd
-	// Secret Key： 479cedc0383a101175647e7632d88aa2
-	public static String APP_KEY = "d185b8544d81482f81094d45d53ecccd";
-	public static String SECRET_KEY = "479cedc0383a101175647e7632d88aa2";
+	/**
+	 * 应用application常量
+	 */
+	
+
 
 	/**
 	 * 图片缓存地址
@@ -80,19 +73,38 @@ public class AppApplication extends Application {
 	public static final int APP_DB_VERSION = 1;
 
 	/**
-	 * 网络配置
+	 * 网络配置平台
 	 */
-	public static final String NET_MAIN_SERVER_URL_BASE = "http://10.20.33.113:8080/HikCMS/mobile/";
+	public static final String NET_MAIN_SERVER_IP = "10.20.34.109";
+	public static final int NET_MAIN_SERVER_PORT = 8080;
+	public static final String NET_MAIN_SERVER_URL_BASE = "http://"+NET_MAIN_SERVER_IP+":"+NET_MAIN_SERVER_PORT+"/HikCMS/mobile/";
 	public static final String NET_AES_PASSWORD = "123456";
-
+	
 	/**
-	 * 应用application常量
+	 * 网络配置萤石
 	 */
+	public static final String NET_EZ_MAIN_SERVER_IP = "open.ys7.com";
+	public static final int NET_EZ_MAIN_SERVER_PORT = 80;
+	public static final String NET_EZ_MAIN_SERVER_URL_BASE = "https://"+NET_MAIN_SERVER_IP+":"+NET_MAIN_SERVER_PORT+"/api/method/";
+	public static final String NET_EZ_PROTOCOL_VERION = "1.0";//协议版本
+//	 public static String APP_KEY = "8698d52f6ac34929b5286698fe7a10e8";
+//	 public static String SECRET_KEY = "32be2dea4158a84ef4294a126038c90f";
+	public static String NET_EZ_APP_KEY = "d185b8544d81482f81094d45d53ecccd";
+	public static String NET_EZ_SECRET_KEY = "479cedc0383a101175647e7632d88aa2";
+	
+
+	
 	/**
 	 * 当前使用的sdk版本号
 	 */
 	public static final int SYSTEM_SDK_VERSION = VERSION.SDK_INT;
 
+	/**
+	 * 默认密码，当检测到用户使用默认密码登陆，则要求他修改
+	 */
+	public static final String DEFAUL_TPASSWORD_FOR_CHECK="111111";
+	
+	
 	private static AppApplication instance;
 
 	public static String API_URL = "https://open.ys7.com";
@@ -109,21 +121,27 @@ public class AppApplication extends Application {
 		initLog();
 
 		Config.LOGGING = true;
-		EzvizAPI.init(this, APP_KEY);
+		EzvizAPI.init(this, NET_EZ_APP_KEY);
 		EzvizAPI.getInstance().setServerUrl(API_URL, WEB_URL);
 		Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(
 				this));
-		
+		//初始化httpclient
+		initNetwork();
 		//初始化图片加载
 		initImageLoader();
-		
+	
 
 		instance = this;
 	}
-
+	
+	
+	private void initNetwork(){
+		HttpDataProvider.getInstance();
+	}
+	
 	private void initImageLoader() {
-		File cacheDir = StorageUtils.getOwnCacheDirectory(
-				getApplicationContext(), CACHE_PATH);
+		String absoluteCachePath =getExternalCacheDir() + CACHE_PATH;
+
 		
 		appDefaultDisplayImageOptions = new DisplayImageOptions.Builder()
 				.showImageOnLoading(R.drawable.default_pic) // 设置图片在下载期间显示的图片
@@ -133,7 +151,7 @@ public class AppApplication extends Application {
 				.cacheOnDisk(true)// 设置下载的图片是否缓存在SD卡中
 				.considerExifParams(true) // 是否考虑JPEG图像EXIF参数（旋转，翻转）
 				.imageScaleType(ImageScaleType.EXACTLY_STRETCHED)// 设置图片以如何的编码方式显示
-				.bitmapConfig(Bitmap.Config.RGB_565)// 设置图片的解码类型//
+				.bitmapConfig(Bitmap.Config.ARGB_8888)// 设置图片的解码类型//
 				.resetViewBeforeLoading(true)// 设置图片在下载前是否重置，复位
 				.displayer(new FadeInBitmapDisplayer(100))// 是否图片加载好后渐入的动画时间
 				.build();// 构建完成
@@ -159,11 +177,12 @@ public class AppApplication extends Application {
 				.tasksProcessingOrder(QueueProcessingType.LIFO)
 				.diskCacheFileCount(100)
 				// 缓存的文件数量
-				.diskCache(new UnlimitedDiskCache(cacheDir))
+				.diskCache(new UnlimitedDiskCache(new File(absoluteCachePath)))
 				// 自定义缓存路径
 				.defaultDisplayImageOptions(appDefaultDisplayImageOptions)
 				.imageDownloader(
-						new ApacheImageDownloader(this, 5 * 1000, 30 * 1000)) // connectTimeout
+						new BaseImageDownloader(this, 5 * 1000, 30 * 1000)) // 可以用，但是没有配置new ApacheImageDownloader(this, 5 * 1000, 30 * 1000))
+																				//connectTimeout
 																				// (5
 																				// s),
 																				// readTimeout
@@ -218,10 +237,28 @@ public class AppApplication extends Application {
 			}
 		}
 	}
+	
+	/**
+	 * 获取最上端的activity，并从缓存中删除
+	 * 
+	 * @param activity
+	 */
+	public Activity popActivity() {
+		for (int i = mRuningActivityList.size() - 1; i >= 0; i--) {
+			WeakReference<Activity> wrAc = mRuningActivityList.get(i);
+			if (wrAc.get() != null) {
+				mRuningActivityList.remove(wrAc);
+				return wrAc.get();
+			}
+		}
+		return null;
+	}
 
 	public List<WeakReference<Activity>> getmRuningActivityList() {
 		return mRuningActivityList;
 	}
+	
+
 
 	/**
 	 * 获取全局application

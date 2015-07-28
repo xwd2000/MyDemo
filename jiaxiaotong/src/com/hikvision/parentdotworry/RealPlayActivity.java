@@ -63,8 +63,11 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.hikvision.parentdotworry.base.BaseActivity;
+import com.hikvision.parentdotworry.costomui.IosDialog;
 import com.hikvision.parentdotworry.costomui.TitleBar;
 import com.hikvision.parentdotworry.costomui.WaitDialog;
+import com.hikvision.parentdotworry.receiver.OnNetWorkChangeListener;
 import com.hikvision.parentdotworry.utils.AudioPlayUtil;
 import com.videogo.constant.Config;
 import com.videogo.constant.Constant;
@@ -100,8 +103,8 @@ import com.videogo.widget.RingView;
  * @author chenxingyf1
  * @data 2014-6-11
  */
-public class RealPlayActivity extends Activity implements OnClickListener, SurfaceHolder.Callback, Handler.Callback,
-        OnTouchListener{
+public class RealPlayActivity extends BaseActivity implements OnClickListener, SurfaceHolder.Callback, Handler.Callback,
+        OnTouchListener,OnNetWorkChangeListener{
     private static final String TAG = "RealPlayActivity";
 
     // UI消息
@@ -212,6 +215,8 @@ public class RealPlayActivity extends Activity implements OnClickListener, Surfa
     // 弱提示预览信息
     private long mStartTime = 0;
     private long mStopTime = 0;
+    
+    private IosDialog mDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -354,13 +359,13 @@ public class RealPlayActivity extends Activity implements OnClickListener, Surfa
         });
         mTitleBar.bringToFront();
         if (mCameraInfo != null) {
-            mTiletRightBtn = mTitleBar.setRightButton(R.drawable.common_title_setup_selector, new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    EzvizAPI.getInstance().gotoSetDevicePage(mCameraInfo.getDeviceId(), mCameraInfo.getCameraId());
-                }
-            });
+//            mTiletRightBtn = mTitleBar.setRightButton(R.drawable.common_title_setup_selector, new OnClickListener() {
+//
+//                @Override
+//                public void onClick(View v) {
+//                    EzvizAPI.getInstance().gotoSetDevicePage(mCameraInfo.getDeviceId(), mCameraInfo.getCameraId());
+//                }
+//            });
         }
         mRealPlayPageLy = (RelativeLayout) findViewById(R.id.realplay_page_ly);
         /** 测量状态栏高度 **/
@@ -500,6 +505,8 @@ public class RealPlayActivity extends Activity implements OnClickListener, Surfa
         
         initOperateBarUI();
         setRealPlaySvLayout();
+        
+        createWarnDialog();
     }
 
     // 初始化UI
@@ -507,11 +514,11 @@ public class RealPlayActivity extends Activity implements OnClickListener, Surfa
     private void initUI() {
         if (mCameraInfo != null) {
             mTitleBar.setTitle(mCameraInfo.getCameraName());
-            if (mCameraInfo.getIsShared() >= 2) {
-                mTiletRightBtn.setVisibility(View.INVISIBLE);
-            } else {
-                mTiletRightBtn.setVisibility(View.VISIBLE);
-            }
+//            if (mCameraInfo.getIsShared() >= 2) {
+//                mTiletRightBtn.setVisibility(View.INVISIBLE);
+//            } else {
+//                mTiletRightBtn.setVisibility(View.VISIBLE);
+//            }
         	if (mLocalInfo.isSoundOpen()) {
 	            mRealPlaySoundBtn.setBackgroundResource(R.drawable.remote_list_soundon_btn_selector);
 	            mRealPlayFullSoundBtn.setBackgroundResource(R.drawable.play_full_soundon_btn_selector);
@@ -1345,6 +1352,7 @@ public class RealPlayActivity extends Activity implements OnClickListener, Surfa
         // 检查网络是否可用
         if (!ConnectionDetector.isNetworkAvailable(this)) {
             // 提示没有连接网络
+        	mRealPlayControlRl.setVisibility(View.GONE);
             setRealPlayFailUI(getString(R.string.realplay_play_fail_becauseof_network));
             return;
         }
@@ -2198,7 +2206,34 @@ public class RealPlayActivity extends Activity implements OnClickListener, Surfa
             }
         }
         mPlayScale = scale;
-    }
+    }	
+    
+    private void createWarnDialog(){
+		mDialog=new IosDialog(this);
+		mDialog.setTitle(getString(R.string.real_play_dialog_warning_title));
+		mDialog.setContent(getString(R.string.real_play_dialog_warning_no_wifi));
+		mDialog.setButtonLeft(getString(R.string.confirm),
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						mDialog.cancel();
+					}
+				});
+		
+		mDialog.setButtonRight(getString(R.string.exit),
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						if (mStatus != RealPlayStatus.STATUS_STOP) {
+							stopRealPlay();
+							setRealPlayStopUI();
+						}
+						mDialog.dismiss();
+						finish();
+					}
+				});
+	}
+
     
     /*
      * (non-Javadoc)
@@ -2231,4 +2266,24 @@ public class RealPlayActivity extends Activity implements OnClickListener, Surfa
             Utils.showLog(RealPlayActivity.this, mRealPlayMgr.getType() + ",取流耗时：" + (mStopTime - mStartTime));
         }
     }
+
+	@Override
+	public void onWifiConnected() {
+		mDialog.dismiss();
+		toast(R.string.real_play_dialog_warning_wifi);
+	}
+
+	@Override
+	public void onMobileConnected() {
+		if (mStatus != RealPlayStatus.STATUS_STOP) {
+            stopRealPlay();
+            setRealPlayStopUI();
+        }
+		mDialog.show();
+	}
+
+	@Override
+	public void onNetDisConnected() {
+		toast(R.string.real_play_dialog_warning_no_net);
+	}
 }

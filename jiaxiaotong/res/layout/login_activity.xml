@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_login_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:onClick="onClick">
 
     <ImageView
         android:layout_width="60dp"
@@ -37,9 +39,7 @@
             android:id="@+id/et_login_user_account"
             style="@style/login_input_edit_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"  
-            android:maxLength="15"
-            android:maxLines="1"/>
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <LinearLayout
@@ -58,9 +58,7 @@
             style="@style/login_input_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:maxLength="15"
-            android:maxLines="1" />
+            android:inputType="textPassword"/>
     </LinearLayout>
 
     <Button
@@ -76,5 +74,5 @@
         android:textColor="@android:color/white"
         android:textSize="@dimen/login_login_button_text_size" 
         android:onClick="onClick"/>
-
+	
 </LinearLayout>

@@ -8,6 +8,8 @@ public class AdvertisementInfo implements FromDb{
 	private String title;
 	private Integer id;
 	private Integer childId;
+	public AdvertisementInfo(){}
+	
 	public AdvertisementInfo( String picUrl,
 			String content) {
 		super();
@@ -55,6 +57,5 @@ public class AdvertisementInfo implements FromDb{
 		this.childId = childId;
 	}
 
-	
 	
 }

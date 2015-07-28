@@ -29,8 +29,6 @@ public class SquareClock extends View {
 	
 	
 	//整一条时间线显示的时间段
-	private Date mLimitStartTime;
-	private Date mLimitEndTime;
 	
 	private Date mSchoolEnterTime;
 	private Date mSchoolLeaveTime;

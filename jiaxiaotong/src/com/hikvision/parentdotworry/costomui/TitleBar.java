@@ -1,22 +1,37 @@
 package com.hikvision.parentdotworry.costomui;
 
-import com.hikvision.parentdotworry.R;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.drawable.shapes.Shape;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.widget.Button;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.view.View;
+
+import com.hikvision.parentdotworry.R;
+import com.hikvision.parentdotworry.utils.ImageUtils;
+import com.hikvision.parentdotworry.utils.ScreenUtil;
 public class TitleBar extends RelativeLayout{
 	private TextView mTvTitle;
 	private ImageView mBtLeftButton;
 	private ImageView mBtRightButton;
-	
+	private ImageView mHasNewBadge;
 	
 	public TitleBar(Context context) {
 		super(context);
@@ -81,7 +96,52 @@ public class TitleBar extends RelativeLayout{
 		mTvTitle.setOnClickListener(onClickListener);
 	}
 	
+	public void showHasNewBadge(){
+		ImageView iv = newOrGetBadge();
+		iv.setVisibility(View.VISIBLE);
+	}		
 	
+	public void hideHasNewBadge(){
+		ImageView iv = newOrGetBadge();
+		iv.setVisibility(View.GONE);
+	}
+	
+	private ImageView newOrGetBadge(){
+		if(mHasNewBadge==null){
+			LayoutParams lp = (LayoutParams) mBtLeftButton.getLayoutParams();
+			ViewParent parent = mBtLeftButton.getParent();
+			FrameLayout container = new FrameLayout(getContext());
+			
+			// TODO verify that parent is indeed a ViewGroup
+			ViewGroup group = (ViewGroup) parent; 
+			int index = group.indexOfChild(mBtLeftButton);
+			
+			group.removeView(mBtLeftButton);
+			group.addView(container, index, lp);
+			
+			container.addView(mBtLeftButton);
+			
+			mHasNewBadge=new ImageView(getContext());
+			
+			int circleWidth=ScreenUtil.dip2px(getContext(), 10);
+			int circleHeight=circleWidth;
+			int circleMarginRight=ScreenUtil.dip2px(getContext(), 8);
+			int circleMarginTop=circleMarginRight;
+			
+			Bitmap bitmap = ImageUtils.generateCircleBitmap(circleWidth/2, Color.argb(255, 238, 78, 50));
+			FrameLayout.LayoutParams lpCircle=new FrameLayout.LayoutParams(circleWidth, circleHeight);
+			lpCircle.gravity = Gravity.RIGHT | Gravity.TOP;
+			lpCircle.setMargins(0, circleMarginTop, circleMarginRight, 0);
+			mHasNewBadge.setLayoutParams(lpCircle);
+			mHasNewBadge.setImageBitmap(bitmap);
+			container.addView(mHasNewBadge);
+			
+			return mHasNewBadge;
+		}else{
+			return mHasNewBadge;
+		}
+	}
+
 	/**
 	 * 返回textview
 	 * @return

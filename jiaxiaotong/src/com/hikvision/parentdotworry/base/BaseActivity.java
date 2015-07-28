@@ -3,20 +3,15 @@ package com.hikvision.parentdotworry.base;
 
 import org.apache.log4j.Logger;
 
-import com.hikvision.parentdotworry.application.AppApplication;
-import com.hikvision.parentdotworry.exception.AppError;
-import com.hikvision.parentdotworry.exception.AppSystemException;
-import com.hikvision.parentdotworry.exception.AppUserException;
-
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Config;
-import android.util.Log;
-import android.view.MotionEvent;
+import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
-public class BaseActivity extends Activity {
+import com.hikvision.parentdotworry.application.AppApplication;
+
+public class BaseActivity extends FragmentActivity {
 	private Logger logger;
 	private String mClazzName;
 	
@@ -98,17 +93,6 @@ public class BaseActivity extends Activity {
 		return getResources().getColor(id);
 	}
 	
-	protected void onError(Exception e){
-		if(e instanceof AppUserException){
-			AppError appError = ((AppUserException)e).getError();
-			toast(appError.message+e.getMessage());
-		}
-		else if(e instanceof AppSystemException){
-			AppError appError = ((AppUserException)e).getError();
-			toast(appError.message+e.getMessage());
-		}else{
-			toast(e.getMessage());
-		}
-	}
+
 
 }

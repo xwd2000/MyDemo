@@ -2,8 +2,6 @@ package com.hikvision.parentdotworry.costomui.slippage;
 
 import java.util.LinkedList;
 
-import com.hikvision.parentdotworry.utils.EmptyUtil;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;

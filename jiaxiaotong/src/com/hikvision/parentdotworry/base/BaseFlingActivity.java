@@ -1,7 +1,6 @@
 package com.hikvision.parentdotworry.base;
 
 import android.graphics.Point;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 

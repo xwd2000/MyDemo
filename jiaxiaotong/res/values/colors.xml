@@ -383,9 +383,9 @@
     <color name="login_input_label_text_color">#8a9a96</color>
 
     <!-- 修改密码界面 -->
-    <color name="change_passward_warm_bar_background">#facec6</color>
-    <color name="change_passward_input_block_background_color">#3313b089</color>
-    <color name="change_passward_input_error_bar_background_color">#f05c42</color>
-    <color name="change_passward_input_hint_color">#8a9a96</color>
-    <color name="change_passward_radio_text_color">#343434</color>
+    <color name="change_pwd_warning_bar_background">#facec6</color>
+    <color name="change_pwd_input_block_background_color">#3313b089</color>
+    <color name="change_pwd_input_error_bar_background_color">#f05c42</color>
+    <color name="change_pwd_input_hint_color">#8a9a96</color>
+    <color name="change_pwd_radio_text_color">#343434</color>
 </resources>

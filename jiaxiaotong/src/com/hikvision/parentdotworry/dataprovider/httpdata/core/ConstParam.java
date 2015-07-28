@@ -1,7 +1,9 @@
 package com.hikvision.parentdotworry.dataprovider.httpdata.core;
 
 
-
+/**
+ * 网络接口返回的错误码
+ */
 public class ConstParam {
 
 	//正常状态返回结果

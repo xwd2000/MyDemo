@@ -9,7 +9,6 @@ import com.hikvision.parentdotworry.base.BaseActivity;
 import com.hikvision.parentdotworry.costomui.TitleBar;
 import com.hikvision.parentdotworry.dataprovider.HttpDataProvider;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.ImageLoader;
-import com.hikvision.parentdotworry.plug.universalimageloader.core.ImageLoaderConfiguration;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.FailReason;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.listener.ImageLoadingListener;
 
@@ -20,7 +19,6 @@ public class CapturePicActivity extends BaseActivity{
 	// ===========================================================
 	public static final String INTENT_KEY_PIC_TYPE_ENTER_SCHOOL="enter";
 	public static final String INTENT_KEY_PIC_TYPE_LEAVE_SCHOOL="leave";
-	private static final String TAG="CapturePicActivity";
 	
 	// ===========================================================
 	// Fields

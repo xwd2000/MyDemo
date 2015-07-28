@@ -7,6 +7,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpGetHC4;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -41,7 +42,7 @@ public class ApacheImageDownloader extends BaseImageDownloader{
 	protected InputStream getStreamFromNetwork(String imageUri, Object extra) throws IOException {
 		 DefaultHttpClient httpclient = new DefaultHttpClient();  
          
-         HttpGet httpget = new HttpGet(imageUri);  
+		 HttpGetHC4 httpget = new HttpGetHC4(imageUri);  
 
          try {  
              HttpResponse resp = httpclient.execute(httpget);  

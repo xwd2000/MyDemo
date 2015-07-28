@@ -42,12 +42,9 @@ import android.widget.TextView;
 
 import com.hikvision.parentdotworry.R;
 import com.hikvision.parentdotworry.application.AppApplication;
-import com.hikvision.parentdotworry.plug.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.DisplayImageOptions;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.ImageLoader;
-import com.hikvision.parentdotworry.plug.universalimageloader.core.ImageLoaderConfiguration;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.ImageScaleType;
-import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.QueueProcessingType;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.process.BitmapProcessor;
@@ -57,7 +54,7 @@ import com.hikvision.parentdotworry.utils.EmptyUtil;
 import com.hikvision.parentdotworry.utils.ImageUtils;
 import com.hikvision.parentdotworry.utils.ScreenUtil;
 
-public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
+public class TimeBarV3 extends LinearLayout implements OnPageChangeListener,View.OnClickListener {
 
 	// ===========================================================
 	// Constants
@@ -97,6 +94,8 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 	private int mMovingCircleWidth=0;
 	// 使用universal-image-loader插件读取网络图片，需要工程导入universal-image-loader-1.8.6-with-sources.jar
 	private ImageLoader mImageLoader = ImageLoader.getInstance();
+	
+	private OnPicClickListener mOnPicClickListener;
 
 	// ===========================================================
 	// Constructors
@@ -136,6 +135,16 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		setAllOtherPos(index);
 	}
 	
+	@Override
+	public void onClick(View v) {
+		
+		if(mOnPicClickListener!=null){
+			if(v.getTag()!=null){
+				MarkPointData mpd = (MarkPointData)v.getTag();
+				mOnPicClickListener.onPicChick(mpd.getUrl());
+			}
+		}
+	}
 
 
 	// ===========================================================
@@ -311,7 +320,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 	 * @param time
 	 *            抓图的时间
 	 */
-	public void addDefaultMarkPoint(final Date time,final String picUrl,final int enterOrLeave) {
+	public void addDefaultMarkPoint(final int id,final Date time,final String picUrl,final int enterOrLeave) {
 		Asserts.check(mLimitTime != null, "addDefaultMarkPoint请先设置总时间");
 		if (mLimitTime.getStart().compareTo(time) >= 0
 				|| mLimitTime.getEnd().compareTo(time) <= 0) {
@@ -340,7 +349,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 							Log.i("TimeBarV2", "ViewTreeObserver CallBack W:"
 									+ mIvTimeLine.getMeasuredWidth() + "  H:"
 									+ mIvTimeLine.getMeasuredHeight());
-							addMarkPointView(time,picUrl,enterOrLeave);
+							addMarkPointView(id,time,picUrl,enterOrLeave);
 						}
 					}
 				});
@@ -352,7 +361,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 	 * 
 	 * @param time
 	 */
-	public void addMarkPointView(Date time,String picUrl,int enterOrLeave) {
+	public void addMarkPointView(int id,Date time,String picUrl,int enterOrLeave) {
 		MarkPointData mpd = new MarkPointData();
 		mpd.setxInParent(getXPosition(time));
 		mpd.setMarkPointTime(time);
@@ -370,7 +379,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		ImageView iv = new ImageView(mContext);
 		// RelativeLayout.LayoutParams lp = new
 		// RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-		iv.setImageDrawable(data.getMarkPointDrawable());
+		//iv.setImageDrawable(data.getMarkPointDrawable());
 		// lp.leftMargin=data.getxInParent()-ImageUtils.drawableToBitmap(data.getMarkPointDrawable()).getWidth()/2;
 		
 		//圆和文字容器
@@ -762,6 +771,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 	// Inner and Anonymous Classes
 	// ===========================================================
 	class MarkPointData {
+		private int id;
 		public int xInParent;
 		public Drawable markPointDrawable;
 		public Date markPointTime;
@@ -808,6 +818,14 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 
 		public void setIsEnter(int isEnter) {
 			this.isEnter = isEnter;
+		}
+
+		public int getId() {
+			return id;
+		}
+
+		public void setId(int id) {
+			this.id = id;
 		}
 
 	}
@@ -884,6 +902,7 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		}
 	}
 
+	
 	/**
 	 * 填充ViewPager的页面适配器
 	 * 
@@ -892,19 +911,15 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		private DisplayImageOptions options;
 		public PicPagerAdapter(){
 			options = new DisplayImageOptions.Builder()
+			.cloneFrom(AppApplication.getApplication().getAppDefaultDisplayImageOptions())
 			.showImageOnLoading(R.drawable.default_pic) //设置图片在下载期间显示的图片  
 			.showImageForEmptyUri(R.drawable.default_pic)//设置图片Uri为空或是错误的时候显示的图片  
 			.showImageOnFail(R.drawable.default_pic)  //设置图片加载/解码过程中错误时候显示的图片
-			.cacheInMemory(true)//设置下载的图片是否缓存在内存中  
-			.cacheOnDisk(true)//设置下载的图片是否缓存在SD卡中  
-			.considerExifParams(true)  //是否考虑JPEG图像EXIF参数（旋转，翻转）
-			.imageScaleType(ImageScaleType.EXACTLY_STRETCHED)//设置图片以如何的编码方式显示  
-			.bitmapConfig(Bitmap.Config.RGB_565)//设置图片的解码类型//  
 //		    .decodingOptions(
 //		    		decodingOptions)//设置图片的解码配置  
 		    //.delayBeforeLoading(int delayInMillis)//int delayInMillis为你设置的下载前的延迟时间
 		    //设置图片加入缓存前，对bitmap进行设置  
-		    .preProcessor( new BitmapProcessor(){
+		    .postProcessor( new BitmapProcessor(){
 
 				@Override
 				public Bitmap process(Bitmap bitmap) {
@@ -932,7 +947,8 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		public Object instantiateItem(ViewGroup container, int position) {
 			// 获取第I个图片
 			MarkPointData data = mMarkPointList.get(position);
-			ImageView imageView = mMarkPointViewMap.get(data).getMarkPointImageView();
+			ImageView imageView = new ImageView(mContext);
+			mMarkPointViewMap.get(data).setMarkPointImageView(imageView);
 			
 			mImageLoader.displayImage(data.getUrl(), imageView, options);
 			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
@@ -940,6 +956,8 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 					RelativeLayout.LayoutParams.WRAP_CONTENT);
 
 			imageView.setLayoutParams(lp);
+			imageView.setTag(data);
+			imageView.setOnClickListener(TimeBarV3.this);
 			
 			container.addView(imageView);
 
@@ -985,12 +1003,20 @@ public class TimeBarV3 extends LinearLayout implements OnPageChangeListener {
 		}
 
 	}
+	
+	public interface OnPicClickListener{
+		public void onPicChick(String picUrl);
+	}
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
 
 	public int getCurrentItemIndex() {
 		return mCurrentItemIndex;
+	}
+
+	public void setOnPicClickListener(OnPicClickListener onPicClickListener) {
+		this.mOnPicClickListener = onPicClickListener;
 	}
 
 }

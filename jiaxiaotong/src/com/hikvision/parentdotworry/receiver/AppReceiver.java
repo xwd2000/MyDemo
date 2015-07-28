@@ -1,30 +1,26 @@
 package com.hikvision.parentdotworry.receiver;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-
-import com.hikvision.parentdotworry.application.AppApplication;
-import com.hikvision.parentdotworry.utils.EmptyUtil;
-import com.hikvision.parentdotworry.utils.MapUtil;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.util.Log;
-import android.widget.Toast;
+
+import com.hikvision.parentdotworry.application.AppApplication;
+import com.hikvision.parentdotworry.push.NotifierUtils;
+import com.hikvision.parentdotworry.service.AppService;
+import com.hikvision.parentdotworry.utils.EmptyUtil;
+import com.videogo.androidpn.Constants;
 
 public class AppReceiver extends BroadcastReceiver {
 	private static String TAG = "AppReceiver";
+	private static final String ACTION_BOOT = "android.intent.action.BOOT_COMPLETED";  
 	@Override
-	public void onReceive(Context context, Intent intent) {
+	public void onReceive(Context context, Intent intent) { 
 		AppApplication app = (AppApplication) context.getApplicationContext();
 		List<WeakReference<Activity>> wrActivityList = app
 				.getmRuningActivityList();
@@ -45,7 +41,13 @@ public class AppReceiver extends BroadcastReceiver {
 				
 			}
 		}
-
+		else if (Constants.NOTIFICATION_RECEIVED_ACTION.equals(action)) {
+            NotifierUtils.showNotification(context, intent);
+        }
+		else if ( ACTION_BOOT.equals(action)) {
+			Intent service = new Intent(context,AppService.class);
+            context.startService(service);
+        }
 	}
 
 }

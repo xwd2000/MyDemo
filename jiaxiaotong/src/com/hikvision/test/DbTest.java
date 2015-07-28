@@ -6,7 +6,7 @@ import android.content.ContentValues;
 
 import com.hikvision.parentdotworry.bean.MessageBean;
 import com.hikvision.parentdotworry.dataprovider.HttpDataProvider;
-import com.hikvision.parentdotworry.dataprovider.dao.UseDatabase;
+import com.hikvision.parentdotworry.dataprovider.dao.DbProvider;
 
 public class DbTest {
 
@@ -16,13 +16,13 @@ public class DbTest {
 	public static void main(String[] args) {
 		long millsec0 = System.currentTimeMillis();
 		
-		UseDatabase udb=UseDatabase.getInstance();
+		DbProvider udb=DbProvider.getInstance();
 		udb.findList( MessageBean.class);
 		long millsec0_5 = System.currentTimeMillis();
 		List<MessageBean> messageBeanList0 = HttpDataProvider.getInstance().getMessagePage(1, 30, 100);
 		long millsec10 = System.currentTimeMillis();
 		udb.insertOrUpdate(messageBeanList0,
-				new UseDatabase.BeanToContentValue<MessageBean>() {
+				new DbProvider.BeanToContentValue<MessageBean>() {
 				@Override
 				public ContentValues beanToContentValue(
 						MessageBean bean,

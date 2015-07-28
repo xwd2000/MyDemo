@@ -7,7 +7,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 
 import com.hikvision.parentdotworry.costomui.WaitDialog;
-import com.videogo.exception.BaseException;
 
 public abstract class AsyncTaskBase<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
 	protected Context context;

@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -15,7 +12,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.EventLogTags.Description;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -28,21 +24,25 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.hikvision.parentdotworry.application.AppApplication;
 import com.hikvision.parentdotworry.base.BaseActivity;
+import com.hikvision.parentdotworry.costomui.IosDialog;
 import com.hikvision.parentdotworry.costomui.TitleBar;
 import com.hikvision.parentdotworry.costomui.commonadapter.CommonAsyncImageAdapter;
 import com.hikvision.parentdotworry.costomui.commonadapter.CommonAsyncImageViewHolder;
 import com.hikvision.parentdotworry.costomui.commonadapter.CommonViewHolder;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.FailReason;
 import com.hikvision.parentdotworry.plug.universalimageloader.core.listener.ImageLoadingListener;
+import com.hikvision.parentdotworry.utils.ActivityUtils;
+import com.hikvision.parentdotworry.utils.NetState;
 import com.hikvision.parentdotworry.utils.ScreenUtil;
-import com.videogo.constant.Constant;
 import com.videogo.constant.IntentConsts;
 import com.videogo.exception.BaseException;
 import com.videogo.exception.ErrorCode;
 import com.videogo.openapi.EzvizAPI;
 import com.videogo.openapi.bean.req.GetCameraInfoList;
 import com.videogo.openapi.bean.resp.CameraInfo;
+import com.videogo.realplay.RealPlayStatus;
 import com.videogo.util.ConnectionDetector;
 import com.videogo.util.LogUtil;
 import com.videogo.util.Utils;
@@ -68,9 +68,9 @@ public class VideoListActivity extends BaseActivity {
 	private List<CameraInfo> mDataList;
 
 	private Map<String, CameraInfo> mExecuteItemMap;
-	
-			
-	private ImageLoadingListener2 mImgeLoadingListener;
+
+	private IosDialog mDialog;
+
 	// // 当前需加载到第currentPage的页
 	// private int currentPage = 0;
 
@@ -117,13 +117,12 @@ public class VideoListActivity extends BaseActivity {
 
 	private void initView() {
 		// 初始化标题栏
-		mTbTitleBar.setLeftButton(R.drawable.arrow,
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						VideoListActivity.this.finish();
-					}
-				});
+		mTbTitleBar.setLeftButton(R.drawable.arrow, new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				VideoListActivity.this.finish();
+			}
+		});
 		mTbTitleBar.setTitle(getString(R.string.video_list_title));
 
 		// 实例化适配器
@@ -135,23 +134,50 @@ public class VideoListActivity extends BaseActivity {
 			protected void fillItemData(CommonViewHolder viewHolder,
 					int position, CameraInfo item) {
 				// 不符合设计模式的做法，这样转化只有申明的是CommonAsyncImageAdapter才行，CommonImageAdapter不行
-				CommonAsyncImageViewHolder caiv = (CommonAsyncImageViewHolder) viewHolder;
-				caiv.setTextForTextView(R.id.tv_video_name,
-						item.getCameraName());
+				if (item != null) {
+					CommonAsyncImageViewHolder caiv = (CommonAsyncImageViewHolder) viewHolder;
+					caiv.setTextForTextView(R.id.tv_video_list_item_name,
+							item.getCameraName());
 
-				String snapshotPath = EzvizAPI.getInstance().getSnapshotPath(
-						item.getCameraId());
-				File snapshotFile = new File(snapshotPath);
-				if (snapshotFile.exists()) {
-					snapshotPath = "file://" + snapshotPath;
-				} else {
-					snapshotPath = item.getPicUrl();
+					String snapshotPath = EzvizAPI.getInstance()
+							.getSnapshotPath(item.getCameraId());
+					File snapshotFile = new File(snapshotPath);
+					if (snapshotFile.exists()) {
+						snapshotPath = "file://" + snapshotPath;
+					} else {
+						snapshotPath = item.getPicUrl();
+					}
+					if (!TextUtils.isEmpty(snapshotPath)) {
+						caiv.setImageForView(R.id.iv_video_list_item_capture,
+								snapshotPath, AppApplication.getApplication()
+										.getAppDefaultDisplayImageOptions());// 这里可以加回调函数
+					}
+					ImageView iv = (ImageView) caiv
+							.getView(R.id.iv_video_list_item_capture);
+					DisplayMetrics dm = ScreenUtil
+							.getScreenMetrics(VideoListActivity.this);
+					int picWidth = dm.widthPixels
+							- 2
+							* getResources().getDimensionPixelSize(
+									R.dimen.video_list_item_padding_left_right);
+					setImageScal(iv, picWidth, picWidth / 16 * 9);
+					// 启动获取图片任务
+					getCameraSnapshotTask(item);
+					ImageView ivOffline = (ImageView) caiv
+							.getView(R.id.iv_video_list_item_offline);
+					ImageView ivPlayButton = (ImageView) caiv
+							.getView(R.id.iv_video_list_item_play_button);
+
+					if (item.getStatus() == 0) {
+						ivPlayButton.setVisibility(View.GONE);
+						ivOffline.setVisibility(View.VISIBLE);
+					} else {
+						ivPlayButton.setVisibility(View.VISIBLE);
+						ivOffline.setVisibility(View.GONE);
+					}
+
 				}
-				if (!TextUtils.isEmpty(snapshotPath)) {
-					caiv.setImageForView(R.id.iv_video_capture, snapshotPath,mImgeLoadingListener);// 这里可以加回调函数
-				}
-				// 启动获取图片任务
-				getCameraSnapshotTask(item);
+
 			}
 		};
 
@@ -196,19 +222,27 @@ public class VideoListActivity extends BaseActivity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 
-				CameraInfo cameraInfo = mDataList.get(position - 1);
-				Intent intent = new Intent(VideoListActivity.this,
-						RealPlayActivity.class);
-				// Intent intent = new Intent(CameraListActivity.this,
-				// SimpleRealPlayActivity.class);
-				intent.putExtra(IntentConsts.EXTRA_CAMERA_INFO, cameraInfo);
-				startActivity(intent);
+				final CameraInfo cameraInfo = mDataList.get(position - 1);
+				if (cameraInfo != null && cameraInfo.getStatus() != 0) {
+					if (NetState.getCurrentNetType() == NetState.NETSTATUS_MOBILE_2G
+							|| NetState.getCurrentNetType() == NetState.NETSTATUS_MOBILE_3G
+							|| NetState.getCurrentNetType() == NetState.NETSTATUS_MOBILE_4G) {
+						mDialog.setButtonLeft(new View.OnClickListener() {
+							public void onClick(View v) {
+								gotoRealplayPage(cameraInfo);
+							};
+						});
+						mDialog.show();
+					} else if (NetState.getCurrentNetType() == NetState.NETSTATUS_NONE) {
+						toast(R.string.no_net);
+					} else {
+						gotoRealplayPage(cameraInfo);
+					}
 
+				}
 			}
 		});
-		DisplayMetrics dm = ScreenUtil.getScreenMetrics(this);
-		int picWidth=dm.widthPixels-2*getResources().getDimensionPixelSize(R.dimen.video_list_item_padding_left_right);
-		mImgeLoadingListener = new ImageLoadingListener2(picWidth, picWidth/16*9);
+		createWarnDialog();
 	}
 
 	/**
@@ -223,73 +257,63 @@ public class VideoListActivity extends BaseActivity {
 			}
 			mExecuteItemMap.put(cameraInfo.getCameraId(), cameraInfo);
 		}
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					String snapshotPath = EzvizAPI.getInstance()
-							.getCameraSnapshot(cameraInfo.getCameraId());
-					LogUtil.infoLog(TAG, "getCameraSnapshotTask:"
-							+ snapshotPath);
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							mCommonAdapter.notifyDataSetChanged();
-						}
-					});
-				} catch (BaseException e) {
-					e.printStackTrace();
-				}
-				synchronized (mExecuteItemMap) {
-					mExecuteItemMap.remove(cameraInfo.getCameraId());
-				}
-			}
-		};
+		// Runnable runnable = new Runnable() {
+		// @Override
+		// public void run() {
+		// try {
+		// String snapshotPath = EzvizAPI.getInstance()
+		// .getCameraSnapshot(cameraInfo.getCameraId());
+		// LogUtil.infoLog(TAG, "getCameraSnapshotTask:"
+		// + snapshotPath);
+		// runOnUiThread(new Runnable() {
+		// @Override
+		// public void run() {
+		// mCommonAdapter.notifyDataSetChanged();
+		// }
+		// });
+		// } catch (BaseException e) {
+		// e.printStackTrace();
+		// }
+		// synchronized (mExecuteItemMap) {
+		// mExecuteItemMap.remove(cameraInfo.getCameraId());
+		// }
+		// }
+		// };
 
 	}
 
-	 private class ImageLoadingListener2 implements ImageLoadingListener {
-		 private int imageWidth;
-		 private int imageHeight;
-		 
-		 
-		public ImageLoadingListener2(int imageWidth, int imageHeight) {
-			super();
-			this.imageWidth = imageWidth;
-			this.imageHeight = imageHeight;
-		}
+	private View setImageScal(View view, int width, int height) {
+		ImageView imgView = (ImageView) view;
+		ViewGroup.LayoutParams lp = imgView.getLayoutParams();
+		lp.width = width;
+		lp.height = height;
+		imgView.setLayoutParams(lp);
+		return view;
+	}
 
-		@Override
-		public void onLoadingStarted(String imageUri, View view) {
+	private void createWarnDialog() {
+		mDialog = new IosDialog(this);
+		mDialog.setTitle(getString(R.string.real_play_dialog_warning_title));
+		mDialog.setContent(getString(R.string.real_play_dialog_warning_no_wifi));
+		mDialog.setButtonLeft(getString(R.string.yes));
 
-		}
+		mDialog.setButtonRight(getString(R.string.cancel),
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						mDialog.cancel();
+					}
+				});
+	}
 
-		@Override
-		public void onLoadingFailed(String imageUri, View view,
-				FailReason failReason) {
-			LogUtil.errorLog(TAG, "onLoadingFailed: " + failReason.toString());
-		}
-
-		@Override
-		public void onLoadingComplete(String imageUri, View view,
-				Bitmap loadedImage) {
-			if (view != null && view instanceof ImageView
-					&& loadedImage != null) {
-				ImageView imgView = (ImageView) view;
-				ViewGroup.LayoutParams lp = imgView.getLayoutParams();
-				lp.width = imageWidth;
-				lp.height = imageHeight;
-				imgView.setLayoutParams(lp);
-				imgView.setImageBitmap(loadedImage);
-				imgView.setVisibility(View.VISIBLE);
-			}
-		}
-
-		@Override
-		public void onLoadingCancelled(String imageUri, View view) {
-
-		}
-	};
+	private void gotoRealplayPage(CameraInfo cameraInfo) {
+		Intent intent = new Intent(VideoListActivity.this,
+				RealPlayActivity.class);
+		// Intent intent = new Intent(CameraListActivity.this,
+		// SimpleRealPlayActivity.class);
+		intent.putExtra(IntentConsts.EXTRA_CAMERA_INFO, cameraInfo);
+		startActivity(intent);
+	}
 
 	// ===========================================================
 	// Inner and Anonymous Classes
@@ -319,13 +343,13 @@ public class VideoListActivity extends BaseActivity {
 
 		@Override
 		protected List<CameraInfo> doInBackground(Void... params) {
-			 if(VideoListActivity.this.isFinishing()) {
-	                return null;
-	            }
+			if (VideoListActivity.this.isFinishing()) {
+				return null;
+			}
 			if (!ConnectionDetector.isNetworkAvailable(VideoListActivity.this)) {
-                mErrorCode = ErrorCode.ERROR_WEB_NET_EXCEPTION;
-                return null;
-            }
+				mErrorCode = ErrorCode.ERROR_WEB_NET_EXCEPTION;
+				return null;
+			}
 			try {
 				GetCameraInfoList getCameraInfoList = new GetCameraInfoList();
 				getCameraInfoList.setPageSize(PAGE_SIZE);
@@ -347,25 +371,26 @@ public class VideoListActivity extends BaseActivity {
 				mErrorCode = e.getErrorCode();
 			} catch (Exception e) {
 				e.printStackTrace();
-				
+
 			}
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(List<CameraInfo> result) {
-			if(VideoListActivity.this.isFinishing()) {
-                return;
-            }
+			if (VideoListActivity.this.isFinishing()) {
+				return;
+			}
 			if (null != result) {
 				switch (direction) {
 				case DIRECTION_DOWN:
 					mDataList.clear();
 				case DIRECTION_UP:
-					if(mDataList.size() % PAGE_SIZE!=0){
-						
-						for(int i=mDataList.size(),j=mDataList.size() / PAGE_SIZE * PAGE_SIZE;i>j;i--){
-							mDataList.remove(i-1);
+					if (mDataList.size() % PAGE_SIZE != 0) {
+
+						for (int i = mDataList.size(), j = mDataList.size()
+								/ PAGE_SIZE * PAGE_SIZE; i > j; i--) {
+							mDataList.remove(i - 1);
 						}
 					}
 					mDataList.addAll(result);// 必须在ui线程填数据
@@ -389,7 +414,7 @@ public class VideoListActivity extends BaseActivity {
 		case ErrorCode.ERROR_WEB_SESSION_EXPIRE:
 		case ErrorCode.ERROR_WEB_HARDWARE_SIGNATURE_ERROR:
 		case 10001:
-			mEzvizAPI.gotoLoginPage();
+			new ActivityUtils(this).gotoPage(LoginActivity.class, true);
 			break;
 		default:
 			if (mDataList.size() == 0) {
@@ -403,9 +428,12 @@ public class VideoListActivity extends BaseActivity {
 				Utils.showToast(VideoListActivity.this,
 						R.string.get_camera_list_fail, errorCode);
 			}
+			mPtrlvVideoList.onRefreshComplete();
+
 			break;
 		}
 	}
+
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================

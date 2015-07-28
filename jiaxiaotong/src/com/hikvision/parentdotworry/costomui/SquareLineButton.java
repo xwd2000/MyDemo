@@ -2,22 +2,21 @@ package com.hikvision.parentdotworry.costomui;
 
 import java.util.Date;
 
-import com.hikvision.parentdotworry.R;
-import com.hikvision.parentdotworry.consts.AppConst;
-import com.hikvision.parentdotworry.utils.DateUtil;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.hikvision.parentdotworry.R;
+import com.hikvision.parentdotworry.consts.AppConst;
+import com.hikvision.parentdotworry.utils.DateUtil;
 
 public class SquareLineButton extends RelativeLayout {
 	private static final String TAG = "SquareLineButton";
@@ -58,8 +57,7 @@ public class SquareLineButton extends RelativeLayout {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+		
 
 		int sizeWidth = MeasureSpec.getSize(widthMeasureSpec);
 		int sizeHeight = MeasureSpec.getSize(heightMeasureSpec);

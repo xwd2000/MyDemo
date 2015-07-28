@@ -59,7 +59,7 @@
         <activity android:name=".LoginForwardActivity" >
         </activity>
         <activity 
-            android:name=".LoginActivity"  >
+            android:name=".LoginActivity" android:windowSoftInputMode="stateUnchanged|adjustPan" >
         </activity> 
         <activity android:name=".ChangePasswordActivity" >
         </activity>
@@ -85,10 +85,14 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="com.videogo.androidpn.NOTIFICATION_RECEIVED_ACTION" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-
-                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.HOME"/>
+                <action android:name="com.videogo.androidpn.NOTIFICATION_RECEIVED_ACTION" />
             </intent-filter>
         </receiver>
+        
+        
+        <service android:name=".service.AppService" >
+        </service>
     </application>
 
 </manifest>

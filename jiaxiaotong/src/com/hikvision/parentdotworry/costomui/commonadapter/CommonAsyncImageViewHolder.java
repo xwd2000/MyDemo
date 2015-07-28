@@ -12,10 +12,8 @@ import com.hikvision.parentdotworry.plug.universalimageloader.core.ImageLoaderCo
 import com.hikvision.parentdotworry.plug.universalimageloader.core.listener.ImageLoadingListener;
 
 public class CommonAsyncImageViewHolder extends CommonViewHolder{
-	private final String TAG="CommonAsyncImageViewHolder";
 	
     private ImageLoader mImageLoader;
-    private ImageLoadingListener mImgLoadingListener;
     
 	/**
 	 * TODO newFixedThreadPool=Constant.CPU_NUMS * Constant.POOL_SIZE)

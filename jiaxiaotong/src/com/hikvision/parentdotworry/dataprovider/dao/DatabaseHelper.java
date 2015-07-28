@@ -2,6 +2,7 @@ package com.hikvision.parentdotworry.dataprovider.dao;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,17 +13,16 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.hikvision.parentdotworry.application.AppApplication;
-import com.hikvision.parentdotworry.application.AppConfig;
 import com.hikvision.parentdotworry.bean.AdvertisementInfo;
-import com.hikvision.parentdotworry.bean.ChildInfo;
 import com.hikvision.parentdotworry.bean.ChildCaptureInfo;
+import com.hikvision.parentdotworry.bean.ChildInfo;
 import com.hikvision.parentdotworry.bean.MessageBean;
+import com.hikvision.parentdotworry.bean.MessageIsNew;
 import com.hikvision.parentdotworry.bean.NomalTime;
 import com.hikvision.parentdotworry.bean.interf.FromDb;
 import com.hikvision.parentdotworry.consts.AppConst;
 import com.hikvision.parentdotworry.utils.Asserts;
 import com.hikvision.parentdotworry.utils.ClassUtils;
-import com.hikvision.parentdotworry.utils.ListUtil;
 import com.hikvision.parentdotworry.utils.StringUtils;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -34,12 +34,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public static final String DATABASE_DATE_TIME_PATTERN = AppConst.PATTERN_DATE_TIME_DB; // 数据库名称
 	
 	//因为android获取不了类信息，所以只能在类中枚举
-	private static final List<Class<?>> needSaveBeanList = ListUtil.<Class<?>>generateList(
+	private static final List<Class<?>> needSaveBeanList = Arrays.<Class<?>>asList(
 			ChildInfo.class,
 			MessageBean.class,
 			NomalTime.class,
 			ChildCaptureInfo.class,
-			AdvertisementInfo.class
+			AdvertisementInfo.class,
+			MessageIsNew.class
 			);
 	public static Map<String,String> dataTypeMap;
 	static{

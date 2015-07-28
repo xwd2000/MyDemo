@@ -2,19 +2,14 @@ package com.hikvision.parentdotworry.costomui;
 
 import java.util.Date;
 
-import com.hikvision.parentdotworry.R;
-import com.hikvision.parentdotworry.utils.DateUtil;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import com.hikvision.parentdotworry.R;
 
 public class TimeBar extends RelativeLayout {
 	private final String TAG = "TimeBar";

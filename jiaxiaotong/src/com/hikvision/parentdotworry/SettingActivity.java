@@ -65,25 +65,7 @@ public class SettingActivity extends BaseActivity {
 		new DataObtainTask(SettingActivity.this,true).execute();
 	}
 	
-//	@Override
-//	public void onFlingLeft() {}
-//
-//
-//
-//	@Override
-//	public void onFlingRight() {
-//		this.finish();
-//	}
-//
-//
-//
-//	@Override
-//	public void onFlingLeftEnd() {}
-//
-//
-//
-//	@Override
-//	public void onFlingRightEnd() {}
+
 
 	// ===========================================================
 	// Methods
@@ -110,14 +92,7 @@ public class SettingActivity extends BaseActivity {
 			}
 		});
 
-		mSvSettingScroll.setOnTouchListener(new OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				toast("11111111111");
-				return false;
-			}
-		});
+		
 	}
 
 	// ===========================================================
@@ -153,6 +128,7 @@ public class SettingActivity extends BaseActivity {
 			mTvPhone.setText(parent.getPhone());
 			mTvUnDefine.setText(R.string.setting_undetermined_label);
 
+			@SuppressWarnings("unchecked")
 			List<ChildInfo> childList = (List<ChildInfo>) result.get(CHILD_LIST_KEY);
 			for (int i = 0, j = childList.size(); i < j; i++) {
 				ChildInfo child=childList.get(i);

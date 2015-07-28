@@ -1,9 +1,6 @@
 package com.hikvision.parentdotworry;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,24 +11,19 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.handmark.pulltorefresh.library.ILoadingLayout;
@@ -44,22 +36,27 @@ import com.hikvision.parentdotworry.base.BaseFlingActivity;
 import com.hikvision.parentdotworry.bean.ChildCaptureInfo;
 import com.hikvision.parentdotworry.bean.ChildInfo;
 import com.hikvision.parentdotworry.bean.MessageBean;
-import com.hikvision.parentdotworry.bean.MessageDetail;
+import com.hikvision.parentdotworry.bean.MessageIsNew;
 import com.hikvision.parentdotworry.bean.NomalTime;
 import com.hikvision.parentdotworry.bean.Pagination;
+import com.hikvision.parentdotworry.bean.Parent;
 import com.hikvision.parentdotworry.consts.AppConst;
 import com.hikvision.parentdotworry.costomui.CommonPopupMenu;
 import com.hikvision.parentdotworry.costomui.CommonPopupMenu.OnMenuItemClickListener;
+import com.hikvision.parentdotworry.costomui.PicShowWindow;
 import com.hikvision.parentdotworry.costomui.TimeBarV3;
 import com.hikvision.parentdotworry.costomui.TitleBar;
-import com.hikvision.parentdotworry.costomui.WaitDialog;
-import com.hikvision.parentdotworry.dataprovider.dao.UseDatabase;
+import com.hikvision.parentdotworry.dataprovider.dao.Column;
+import com.hikvision.parentdotworry.dataprovider.dao.SqlUtil;
+import com.hikvision.parentdotworry.dataprovider.dao.DbProvider;
+import com.hikvision.parentdotworry.dataprovider.dao.WSTR;
 import com.hikvision.parentdotworry.dataprovider.httpdata.HttpDataProvider;
 import com.hikvision.parentdotworry.exception.AppError;
+import com.hikvision.parentdotworry.exception.ExceptionDealUtil;
 import com.hikvision.parentdotworry.receiver.OnNetWorkChangeListener;
+import com.hikvision.parentdotworry.utils.ActivityUtils;
 import com.hikvision.parentdotworry.utils.DateUtil;
 import com.hikvision.parentdotworry.utils.EmptyUtil;
-import com.hikvision.parentdotworry.utils.QEncodeUtil;
 import com.hikvision.parentdotworry.utils.ScreenUtil;
 import com.hikvision.parentdotworry.vo.ChildState;
 
@@ -69,8 +66,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	private static final String TAG = "MainActivity2";
-	private static final int HANDLER_MESSAGE_UPDATE_TIME_WHAT = 0;
+	//private static final String TAG = "MainActivity2";
 
 	private static final int CHILD_STATUS_UNKNOW = 0;
 	// 您的小孩未到校
@@ -114,17 +110,15 @@ public class MainActivity2 extends BaseFlingActivity implements
 	private PullToRefreshScrollView mPtrsvMainScrollView;
 	// 数据获取
 	private HttpDataProvider mHttpDataProvider = HttpDataProvider.getInstance();
-	private UseDatabase mUseDatabase = UseDatabase.getInstance();
+	private DbProvider mUseDatabase = DbProvider.getInstance();
 
 	private List<ChildInfo> childInfoList;
 	private int mCurrentChildId = 0;
 	private String mParentPhone = "0";
 
-	// 处理主页时钟
-	private Handler mTimeUpdateHandler;
-
 	private boolean mIsPressOnViewPager;
-
+	private ActivityUtils mActivityUtil;
+	private PicShowWindow mPicShowWindow;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -143,23 +137,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 		initUiInstance();
 		initView();
 
-		mTimeUpdateHandler = new Handler() {
-			@Override
-			public void handleMessage(Message msg) {
-				Date now = new Date();
-				mTvCurrentTime.setText(DateUtil.dateToString(now,
-						AppConst.PATTERN_COMMON_TIME12_WITHOUT_SECOND));
-				int hour = DateUtil.getHour(DateUtil.getCalendar(now));
-				String amOrpm = hour >= 12 ? "pm" : "am";
-				if (!amOrpm.equals(mTvMainTimeTextTail.getText())) {
-					mTvMainTimeTextTail.setText(amOrpm);
-				}
-				this.sendEmptyMessageDelayed(HANDLER_MESSAGE_UPDATE_TIME_WHAT,
-						1000);
-				super.handleMessage(msg);
-			}
-
-		};
+		
 
 		if (true) {// 判断token是否过期
 			silenceLogin();
@@ -174,23 +152,20 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 	@Override
 	protected void onStart() {
-		mTimeUpdateHandler.sendEmptyMessage(HANDLER_MESSAGE_UPDATE_TIME_WHAT);
-		resetPressOnViewPagerFlag();
 		super.onStart();
+		resetPressOnViewPagerFlag();
 	}
 
 	@Override
 	protected void onStop() {
-		mTimeUpdateHandler.removeMessages(HANDLER_MESSAGE_UPDATE_TIME_WHAT);
 		super.onStop();
 	}
 
-	int dd = 0; // TODO 记住删除
 
 	@Override
 	public void onFlingLeft() {
 		
-		 goToInfoPage();
+		 goToInfoPage(mParentPhone,childInfoList);
 		// 测试状态变更
 		
 	
@@ -198,10 +173,10 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 	@Override
 	public void onFlingRight() {
-		// new IosDialog(this).show();
-		// mTimeBarV3.removeAllPoint();
-
-		mTimeBarV3.removeMakePoint(0);
+//		// new IosDialog(this).show();
+//		// mTimeBarV3.removeAllPoint();
+//
+//		mTimeBarV3.removeMakePoint(0);
 	}
 
 	@Override
@@ -218,15 +193,11 @@ public class MainActivity2 extends BaseFlingActivity implements
 		return super.onTouchEvent(event);
 
 	}
-
-	/**
-	 * ACTIONDOWN事件的时候会调用
-	 */
-	public void onUserInteraction() {
-		if (isMenuShowing()) {
-			hideMenu();
-		}
+	@Override
+	public void onBackPressed() {
+		mActivityUtil.invokTwiceToFinish(1500);
 	}
+
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -248,8 +219,6 @@ public class MainActivity2 extends BaseFlingActivity implements
 		if (getWindow().superDispatchTouchEvent(ev)) {
 			if (this.isPressOnViewPagerFlag()) {
 				return true;
-			} else {
-				return onTouchEvent(ev);
 			}
 		}
 		return onTouchEvent(ev);
@@ -282,11 +251,20 @@ public class MainActivity2 extends BaseFlingActivity implements
 	// Methods
 	// ===========================================================
 
+	/**
+	 * ACTIONDOWN事件的时候会调用
+	 */
+	public void onUserInteraction() {
+		if (isMenuShowing()) {
+			hideMenu();
+		}
+	}
+	
 	private void initUiInstance() {
 		mTbTitleBar = (TitleBar) findViewById(R.id.tb_title_bar);
 		mRlMainColorBlock = (RelativeLayout) findViewById(R.id.rl_main_color_block);
 		mIvMainChildStatus = (ImageView) findViewById(R.id.iv_main_child_status);
-		mTvMainWarmingMessage = (TextView) findViewById(R.id.tv_main_warming_message);
+		mTvMainWarmingMessage = (TextView) findViewById(R.id.tv_main_warninging_message);
 		mTimeBarV3 = (TimeBarV3) findViewById(R.id.tb_main_timebar);
 		mLlMainMessageContainer = (LinearLayout) findViewById(R.id.ll_main_message_container);
 		mPbWaitMessage = (ProgressBar) findViewById(R.id.pb_loadding);
@@ -295,21 +273,31 @@ public class MainActivity2 extends BaseFlingActivity implements
 		mTvCurrentTime = (TextView) findViewById(R.id.tv_current_time);
 		mTvMainTimeTextTail = (TextView) findViewById(R.id.tv_main_time_text_tail);
 		mPtrsvMainScrollView = (PullToRefreshScrollView) findViewById(R.id.ptrsv_main_scroll_view);
-
+		mActivityUtil=new ActivityUtils(this);
+		mPicShowWindow = new PicShowWindow(this);
 	}
 
 	private void initView() {
 
-		createOrUpdateTitleBar(childInfoList);
+		createOrUpdateTitleBar();
+		
+		mTimeBarV3.setOnPicClickListener(
+				new TimeBarV3.OnPicClickListener(){
+					@Override
+					public void onPicChick(String picUrl) {
+						mPicShowWindow.show(mTbTitleBar, picUrl);
+						
+					}
+		});
 
-		String schoolStart = AppConfig.getString("MainActivity.schoolStart",
-				"8:00");
-		String schoolEnd = AppConfig
-				.getString("MainActivity.schoolEnd", "5:00");
 
 		NomalTime nomalTime = mUseDatabase.findOne("id=?",
 				new String[] { mCurrentChildId + "" }, NomalTime.class);
 		if (nomalTime == null) {
+			String schoolStart = AppConfig.getString("MainActivity.schoolStart",
+					"8:00");
+			String schoolEnd = AppConfig
+					.getString("MainActivity.schoolEnd", "5:00");
 			relayoutTimeBar(DateUtil.stringToDate(schoolStart, "HH:mm"),
 					DateUtil.stringToDate(schoolEnd, "HH:mm"));
 		} else {
@@ -331,6 +319,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 				
 				if (child != null) {
 					logd(child.getName());
+					mTbTitleBar.setTitle(child.getName());
 					mCurrentChildId = child.getId();
 					new GetDataTask(MainActivity2.this,mCurrentChildId).execute();
 					new FreshStatusTask(MainActivity2.this,mCurrentChildId).execute();
@@ -343,15 +332,17 @@ public class MainActivity2 extends BaseFlingActivity implements
 		startLabels.setRefreshingLabel("正在载入...");// 刷新时
 		startLabels.setReleaseLabel("放开刷新...");// 下来达到一定距离时，显示的提示
 
-		mPtrsvMainScrollView.setOnRefreshListener(new OnRefreshListener() {
+		mPtrsvMainScrollView.setOnRefreshListener(new OnRefreshListener<ScrollView>() {
 			@Override
-			public void onRefresh(PullToRefreshBase refreshView) {
+			public void onRefresh(PullToRefreshBase<ScrollView> refreshView) {
 				new GetDataTask(MainActivity2.this,mCurrentChildId).execute();
 				new FreshStatusTask(MainActivity2.this,mCurrentChildId).execute();
 			}
 
 		});
-		refreshStatus(0);
+		ChildState childState=new ChildState();
+		childState.setState(0);
+		refreshStatus(childState);
 		new GetDataTask(this,mCurrentChildId).execute();
 		new FreshStatusTask(this,mCurrentChildId).execute();
 	}
@@ -369,7 +360,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 		mTimeBarV3.refresh();
 	}
 
-	private void createOrUpdateTitleBar(final List<ChildInfo> childInfoList) {
+	private void createOrUpdateTitleBar() {
 		// 标题栏控制
 		mTbTitleBar.setLeftButton(R.drawable.news_selector,
 				new OnClickListener() {
@@ -392,6 +383,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 						goToVideoListPage();
 					}
 				});
+		mTbTitleBar.showHasNewBadge();
 		if (!EmptyUtil.isEmpty(childInfoList)) {
 			updateTitle(childInfoList);
 			
@@ -423,11 +415,6 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 	}
 
-	private void showMessageProcessBar() {
-		mPbWaitMessage.setVisibility(View.VISIBLE);
-		mLlNoMessageView.setVisibility(View.GONE);
-		mLlMainMessageContainer.setVisibility(View.GONE);
-	}
 
 	private void showEmptyBlock() {
 		mPbWaitMessage.setVisibility(View.GONE);
@@ -441,8 +428,13 @@ public class MainActivity2 extends BaseFlingActivity implements
 		mLlMainMessageContainer.setVisibility(View.VISIBLE);
 	}
 
-	private void goToInfoPage() {
+	private void goToInfoPage(String phone,List<ChildInfo> childInfoList) {
 		Intent intent = new Intent(MainActivity2.this, SettingActivity2.class);
+		Parent parent = new Parent();
+		parent.setName("XXX");
+		parent.setPhone(phone);
+		intent.putExtra(SettingActivity2.CHILDLIST_KEY, (Serializable)childInfoList);
+		intent.putExtra(SettingActivity2.PARENT_KEY, parent);
 		startActivity(intent);
 	}
 
@@ -466,6 +458,8 @@ public class MainActivity2 extends BaseFlingActivity implements
 		startActivity(intent);
 	}
 
+	
+	
 	private void goToChangePasswordPage() {
 		Intent intent = new Intent(MainActivity2.this,
 				ChangePasswordActivity.class);
@@ -499,15 +493,21 @@ public class MainActivity2 extends BaseFlingActivity implements
 		return parent;
 	}
 
-	private void refreshStatus(int status) {
-		AlphaAnimation fadeOutAnima=new AlphaAnimation(1,0);
-		fadeOutAnima.setDuration(200);
-		AlphaAnimation fadeInAnima=new AlphaAnimation(0,1);
-		fadeInAnima.setDuration(200);
-		switch (status) {
+	private void refreshStatus(ChildState childStatus) {
+		String dateTime = childStatus.getTime();
+		if(!EmptyUtil.isEmpty(dateTime)){
+			String time = DateUtil.dateToString(DateUtil.stringToDate(dateTime,AppConst.PATTERN_DATE_TIME_FROM_NET),AppConst.PATTERN_COMMON_TIME12_WITHOUT_SECOND);
+			mTvCurrentTime.setText(time);
+			int hour = DateUtil.getHour(DateUtil.getCalendar(DateUtil.stringToDate(dateTime,AppConst.PATTERN_DATE_TIME_FROM_NET)));
+			String amOrpm = hour >= 12 ? "pm" : "am";
+			if (!amOrpm.equals(mTvMainTimeTextTail.getText())) {
+				mTvMainTimeTextTail.setText(amOrpm);
+			}
+		}
+		switch (childStatus.getState()) {
 		case CHILD_STATUS_UNKNOW:
 			mTvMainWarmingMessage
-			.setText(R.string.main_warming_message_child_in_school);
+			.setText(R.string.main_warninging_message_child_in_school);
 			mTvMainWarmingMessage
 			.setTextColor(getColorById(R.color.lightgrey));
 			mRlMainColorBlock.setBackgroundResource(R.color.lightgrey);
@@ -516,7 +516,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 			break;
 		case CHILD_STATUS_1_NOT_IN_SCHOOL:
 			mTvMainWarmingMessage
-					.setText(R.string.main_warming_message_child_not_in_school);
+					.setText(R.string.main_warninging_message_child_not_in_school);
 			mTvMainWarmingMessage
 					.setTextColor(getColorById(R.color.main_status_yellow));
 			mRlMainColorBlock.setBackgroundResource(R.color.main_status_yellow);
@@ -525,7 +525,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 			break;
 		case CHILD_STATUS_1_IN_SCHOOL:
 			mTvMainWarmingMessage
-					.setText(R.string.main_warming_message_child_in_school);
+					.setText(R.string.main_warninging_message_child_in_school);
 			mTvMainWarmingMessage
 					.setTextColor(getColorById(R.color.main_status_green));
 			mRlMainColorBlock.setBackgroundResource(R.color.main_status_green);
@@ -534,7 +534,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 			break;
 		case CHILD_STATUS_2_NOT_IN_SCHOOL:
 			mTvMainWarmingMessage
-				.setText(R.string.main_warming_message_child_not_in_school);
+				.setText(R.string.main_warninging_message_child_not_in_school);
 			mTvMainWarmingMessage
 					.setTextColor(getColorById(R.color.main_status_yellow));
 			mRlMainColorBlock.setBackgroundResource(R.color.main_status_yellow);
@@ -543,7 +543,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 			break;
 		case CHILD_STATUS_2_IN_SCHOOL:
 			mTvMainWarmingMessage
-				.setText(R.string.main_warming_message_child_in_school_in_time);
+				.setText(R.string.main_warninging_message_child_in_school_in_time);
 			mTvMainWarmingMessage
 					.setTextColor(getColorById(R.color.main_status_green));
 			mRlMainColorBlock.setBackgroundResource(R.color.main_status_green);
@@ -552,7 +552,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 			break;
 		case CHILD_STATUS_2_LATE:
 			mTvMainWarmingMessage
-					.setText(R.string.main_warming_message_child_late);
+					.setText(R.string.main_warninging_message_child_late);
 			mTvMainWarmingMessage
 					.setTextColor(getColorById(R.color.main_status_red));
 			mRlMainColorBlock.setBackgroundResource(R.color.main_status_red);
@@ -561,7 +561,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 			break;
 		case CHILD_STATUS_3_NOT_IN_SCHOOL:
 			mTvMainWarmingMessage
-			.setText(R.string.main_warming_message_child_not_in_school);
+			.setText(R.string.main_warninging_message_child_not_in_school);
 			mTvMainWarmingMessage
 					.setTextColor(getColorById(R.color.main_status_yellow));
 			mRlMainColorBlock.setBackgroundResource(R.color.main_status_yellow);
@@ -570,7 +570,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 			break;
 		case CHILD_STATUS_3_IN_SCHOOL:
 			mTvMainWarmingMessage
-				.setText(R.string.main_warming_message_child_has_not_leave_school);
+				.setText(R.string.main_warninging_message_child_has_not_leave_school);
 			mTvMainWarmingMessage
 					.setTextColor(getColorById(R.color.main_status_green));
 			mRlMainColorBlock.setBackgroundResource(R.color.main_status_green);
@@ -579,7 +579,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 			break;
 		case CHILD_STATUS_3_HAS_LEAVED:
 			mTvMainWarmingMessage
-					.setText(R.string.main_warming_message_child_has_leave_school);
+					.setText(R.string.main_warninging_message_child_has_leave_school);
 			mTvMainWarmingMessage
 					.setTextColor(getColorById(R.color.main_status_green));
 			mRlMainColorBlock.setBackgroundResource(R.color.main_status_green);
@@ -642,6 +642,12 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 	}
 
+	
+	private void updateHasNewTip(){
+		
+		
+		
+	}
 
 	// ===========================================================
 	// Inner and Anonymous Classes
@@ -665,8 +671,8 @@ public class MainActivity2 extends BaseFlingActivity implements
 		protected void onPreExecute() {
 			// showMessageProcessBar();
 			List<MessageBean> messageList = mUseDatabase.findPageList(
-					"child_id = ?", new String[] { childId + "" }, 1,
-					1, "release_time", "desc", MessageBean.class);
+					SqlUtil.getWhereString(WSTR.WHERE_AND_CHILD_ID), new String[] { childId + "" }, 1,
+					1, SqlUtil.getOrderString(Column.RELEASE_TIME), SqlUtil.DESC, MessageBean.class);
 			updateMessageBlock(messageList);
 			super.onPreExecute();
 		}
@@ -680,6 +686,29 @@ public class MainActivity2 extends BaseFlingActivity implements
 			Pagination<MessageBean> messagePagination = null;
 			messagePagination = mHttpDataProvider.getNoticeDetail(
 					childId, mParentPhone, 1, 1);
+			List<MessageBean> messageBeanList=null;
+			if(messagePagination!=null){
+				messageBeanList=messagePagination.getData();
+			}
+			if(!EmptyUtil.isEmpty(messageBeanList)){
+				for(MessageBean messageBean:messageBeanList){
+					messageBean.setChildId(childId);
+					//存储的时候每个孩子分开存，以messageId*100+childId为主键
+					
+					messageBean.setId(messageBean.getId()*100+childId);
+					
+					MessageIsNew mr=mUseDatabase.findOne(SqlUtil.getWhereString(WSTR.WHERE_AND_ID), new String[]{messageBean.getId()+""}, MessageIsNew.class);
+					if(mr==null||mr.getIsNew()==null||mr.getIsNew().equals(1)){
+						messageBean.setIsNew(1);
+					}else{
+						messageBean.setIsNew(0);
+					}
+				}
+				//判断是否是未读的消息
+				
+				mUseDatabase.insertOrUpdate(messageBeanList);
+			}
+			
 			return messagePagination.getData();
 			// return messagePagination.getDataList();
 		}
@@ -690,11 +719,6 @@ public class MainActivity2 extends BaseFlingActivity implements
 				showEmptyBlock();
 			} else {
 				updateMessageBlock(result);
-				for(MessageBean messageBean : result){
-					messageBean.setChildId(childId);
-					messageBean.setId(messageBean.getId()*100+childId);
-				}
-				mUseDatabase.insertOrUpdate(result);
 			}
 		}
 
@@ -703,20 +727,41 @@ public class MainActivity2 extends BaseFlingActivity implements
 			LayoutInflater inflater = (LayoutInflater) MainActivity2.this
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			for (MessageBean messageBean : result) {
-				LinearLayout linearLayout = (LinearLayout) inflater.inflate(
+				final LinearLayout linearLayout = (LinearLayout) inflater.inflate(
 						R.layout.main_message_item, null);
 				fillMessageData(messageBean, linearLayout);
+				
 				LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 				lp.topMargin = MainActivity2.this.getResources()
 						.getDimensionPixelSize(R.dimen.main_item_margin_top);// 设置上边距
 				linearLayout.setLayoutParams(lp);
 				linearLayout.setTag(messageBean);
+				
 				linearLayout.setOnClickListener(new OnClickListener() {
 
 					@Override
 					public void onClick(View v) {
 						MessageBean mb = (MessageBean) v.getTag();
+						if(mb.getIsNew()==null||mb.getIsNew().equals(1)){
+						
+							//设置已读
+							
+							MessageIsNew mr=mUseDatabase.findOne(SqlUtil.getWhereString(WSTR.WHERE_AND_ID), new String[]{mb.getId()+""}, MessageIsNew.class);
+							
+							if(mr==null){
+								mr=new MessageIsNew();
+							}
+							if(mr.getIsNew()==null||mr.getIsNew().equals(1)){
+								mr.setIsNew(0);
+								mr.setId(mb.getId());
+							}
+							mUseDatabase.insertOrUpdate(mr);
+							
+							mb.setIsNew(0);
+							fillMessageData(mb, linearLayout);
+							mUseDatabase.insertOrUpdate(mb);
+						}
 						goToMessageDetailPage(mb);
 					}
 				});
@@ -728,7 +773,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 		@Override
 		protected void onError(Exception e) {
-			MainActivity2.this.onError(e);
+			new ExceptionDealUtil(MainActivity2.this).deal(e);
 		}
 
 	}
@@ -747,12 +792,6 @@ public class MainActivity2 extends BaseFlingActivity implements
 		public FreshStatusTask(Context context,Integer childId) {
 			super(context);
 			this.childId=childId;
-		}
-
-		@Override
-		protected void onPreExecute() {
-
-			super.onPreExecute();
 		}
 
 		@Override
@@ -788,12 +827,14 @@ public class MainActivity2 extends BaseFlingActivity implements
 		@Override
 		protected void realOnPostExecute(Map<String, Object> result) {
 			mTimeBarV3.removeAllPoint();
+			
+			@SuppressWarnings("unchecked")
 			List<ChildCaptureInfo> childCaptureInfoList = (List<ChildCaptureInfo>) result
 					.get(KEY_CHILDCAPTUREINFO);
 			NomalTime nomalTime = (NomalTime) result.get(KEY_NOMALTIME);
 			ChildState childState = (ChildState) result.get(KEY_CHILDSTATE);
 			
-			refreshStatus(childState.getState());
+			refreshStatus(childState);
 			
 			nomalTime.setId(childId);
 			mUseDatabase.insertOrUpdate(nomalTime);
@@ -803,7 +844,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 					AppConst.PATTERN_DATE_TIME_FROM_NET);
 			relayoutTimeBar(periodStart, periodEnd);
 			for (ChildCaptureInfo cci : childCaptureInfoList) {
-				mTimeBarV3.addMarkPointView(cci.getTime(),
+				mTimeBarV3.addMarkPointView(cci.getId(),cci.getTime(),
 						cci.getPicUrl(),cci.getState());
 			}
 
@@ -820,7 +861,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 		@Override
 		protected void onError(Exception e) {
-			MainActivity2.this.onError(e);
+			new ExceptionDealUtil(MainActivity2.this).deal(e);
 			if (mPtrsvMainScrollView != null
 					&& mPtrsvMainScrollView.isRefreshing()) {
 				mPtrsvMainScrollView.onRefreshComplete();
@@ -862,7 +903,7 @@ public class MainActivity2 extends BaseFlingActivity implements
 
 		@Override
 		protected void onError(Exception e) {
-			MainActivity2.this.onError(e);
+			new ExceptionDealUtil(MainActivity2.this).deal(e);
 		}
 	}
 

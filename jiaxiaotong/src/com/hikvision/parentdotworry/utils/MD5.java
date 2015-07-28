@@ -24,30 +24,40 @@ public class MD5 {
 		return sb.toString();
 	}
 
-	public static String md5(String input) throws Exception {
+	public static String md5(String input) {
 		return code(input, 32);
 	}
 
-	public static String code(String input, int bit)
-			throws NoSuchAlgorithmException, UnsupportedEncodingException {
+	public static String code(String input, int bit) {
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance(System.getProperty("MD5.algorithm",
+					"MD5"));
 
-		MessageDigest md = MessageDigest.getInstance(System.getProperty(
-				"MD5.algorithm", "MD5"));
-		if (bit == 16)
-			return bytesToHex(md.digest(input.getBytes("utf-8"))).substring(8,
-					24);
-		return bytesToHex(md.digest(input.getBytes("utf-8")));
-
+			if (bit == 16) {
+				return bytesToHex(md.digest(input.getBytes("utf-8")))
+						.substring(8, 24);
+			}
+			return bytesToHex(md.digest(input.getBytes("utf-8")));
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static String md5_3(String b) throws NoSuchAlgorithmException {
-		MessageDigest md = MessageDigest.getInstance(System.getProperty(
-				"MD5.algorithm", "MD5"));
-
-		byte[] a = md.digest(b.getBytes());
-		a = md.digest(a);
-		a = md.digest(a);
-
-		return bytesToHex(a);
+		try {
+			MessageDigest md = MessageDigest.getInstance(System.getProperty(
+					"MD5.algorithm", "MD5"));
+			byte[] a = md.digest(b.getBytes());
+			a = md.digest(a);
+			a = md.digest(a);
+			return bytesToHex(a);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

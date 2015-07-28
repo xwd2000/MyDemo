@@ -2,7 +2,6 @@ package com.hikvision.parentdotworry;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -13,24 +12,20 @@ import android.widget.TextView;
 import com.hikvision.parentdotworry.application.AppApplication;
 import com.hikvision.parentdotworry.base.BaseActivity;
 import com.hikvision.parentdotworry.bean.MessageBean;
-import com.hikvision.parentdotworry.bean.MessageDetail;
 import com.hikvision.parentdotworry.costomui.TitleBar;
-import com.hikvision.parentdotworry.dataprovider.HttpDataProvider;
+import com.hikvision.parentdotworry.plug.universalimageloader.core.DisplayImageOptions;
+import com.hikvision.parentdotworry.plug.universalimageloader.core.ImageLoader;
+import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.FailReason;
+import com.hikvision.parentdotworry.plug.universalimageloader.core.listener.ImageLoadingListener;
 import com.hikvision.parentdotworry.utils.Args;
 import com.hikvision.parentdotworry.utils.EmptyUtil;
 import com.hikvision.parentdotworry.utils.ScreenUtil;
-import com.hikvision.parentdotworry.plug.universalimageloader.core.DisplayImageOptions;
-import com.hikvision.parentdotworry.plug.universalimageloader.core.ImageLoader;
-import com.hikvision.parentdotworry.plug.universalimageloader.core.ImageLoaderConfiguration;
-import com.hikvision.parentdotworry.plug.universalimageloader.core.assist.FailReason;
-import com.hikvision.parentdotworry.plug.universalimageloader.core.listener.ImageLoadingListener;
 
 public class MessageDetailActivity extends BaseActivity {
 
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	private static final String TAG = "MessageDetailActivity";
 	public static final String INTENT_KEY_MESSAGE_BEAN = "messagebean";
 	private static final float IMAGE_MIN_RATIO = 9/16f;
 	// ===========================================================
@@ -43,9 +38,6 @@ public class MessageDetailActivity extends BaseActivity {
 	private TextView mTvMessageDetailPageDepartment;
 	private ImageView mIvMessageDetailImage;
 	private ImageView mIvMessageDetailLine;
-
-	private HttpDataProvider mHttpDataProvider = HttpDataProvider.getInstance();
-	private MessageDetail mMessageDetail;// 数据bean
 
 	private ImageLoader mImageLoader;
 
@@ -173,27 +165,6 @@ public class MessageDetailActivity extends BaseActivity {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-	class GetDataTask extends AsyncTask<Void, Void, MessageBean> {
-
-		private int messageId;
-		
-		public GetDataTask(int messageId) {
-			super();
-			this.messageId = messageId;
-		}
-
-		@Override
-		protected MessageBean doInBackground(Void... params) {
-			//mMessageDetail = mHttpDataProvider.getMessageDetailById(messageId);
-			return mMessageDetail;
-		}
-		@Override
-		protected void onPostExecute(MessageBean result) {
-			//addViewData(result);
-			super.onPostExecute(result);
-		}
-		
-	}
 	
 	// ===========================================================
 	// Getter & Setter

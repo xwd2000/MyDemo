@@ -7,9 +7,11 @@ public class AppBaseException extends Exception{
 	private Exception targetException;
 	
 	public AppBaseException(AppError error){
+		super("");
 		this.error=error;
 	}
 	public AppBaseException(AppError error,Exception e){
+		super("");
 		this.error=error;
 		this.targetException=e;
 	}
