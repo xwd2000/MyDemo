@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_layout_test"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:onClick="onClick">
+    <ImageView 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+      	android:background="@android:color/white"
+        android:scaleType="fitXY"/>
+    <ImageView android:layout_width="50dp"
+        android:layout_height="50dp"
+      	android:background="@android:color/darker_gray"
+      	android:layout_alignParentRight="true"
+      	android:layout_alignParentBottom="true"/>
+	<ImageView android:layout_width="20dp"
+        android:layout_height="20dp"
+      	android:background="@android:color/black"
+      	android:layout_alignParentRight="true"
+      	android:layout_alignParentBottom="true"/>
+</RelativeLayout>

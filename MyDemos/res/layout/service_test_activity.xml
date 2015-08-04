@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/tv_show_service_status_message"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal" 
+		android:padding="10dp">
+
+        <Button
+            android:id="@+id/bt_start_Service"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" 
+            android:text="@string/start_service"
+            android:textSize="15sp"
+            android:onClick="onClick"/>
+        <Button
+            android:id="@+id/bt_bind_Service"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" 
+            android:text="@string/bind_service"
+            android:textSize="15sp"
+             android:onClick="onClick"/>
+        <Button
+            android:id="@+id/bt_unbind_Service"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" 
+            android:text="@string/unbind_service"
+            android:textSize="15sp"
+             android:onClick="onClick"/>
+        <Button
+            android:id="@+id/bt_stop_Service"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" 
+            android:text="@string/stop_service"
+            android:textSize="15sp"
+             android:onClick="onClick"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal" 
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/bt_boot_up_start_service"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" 
+            android:text="@string/boot_up_start_service"
+            android:textSize="15sp"
+            android:onClick="onClick"/>
+        <Button
+            android:id="@+id/bt_cancel_boot_up_start_service"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" 
+            android:text="@string/cancel_boot_up_start_service"
+            android:textSize="15sp"
+            android:onClick="onClick"/>
+    </LinearLayout>
+
+</LinearLayout>
