@@ -8,17 +8,21 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoop;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-public class ExceptionReconnectHandler extends SimpleChannelInboundHandler<Object> {
+public class ExceptionReconnectHandler extends
+		SimpleChannelInboundHandler<Object> {
 	private final Client client;
 	private long startTime = -1;
-	
-	
-	
+	private boolean reconnect = true;
+
 	public ExceptionReconnectHandler(Client client) {
 		super();
 		this.client = client;
 	}
 
+	public void setReconnect(boolean reconnect){
+		this.reconnect=reconnect;
+	}
+	
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		if (startTime < 0) {
@@ -27,21 +31,21 @@ public class ExceptionReconnectHandler extends SimpleChannelInboundHandler<Objec
 		println("Connected to: " + ctx.channel().remoteAddress());
 		super.channelActive(ctx);
 	}
-	
-	
+
 	@Override
 	public void channelUnregistered(final ChannelHandlerContext ctx)
 			throws Exception {
 		println("Sleeping for: " + Client.RECONNECT_DELAY + 's');
-
-		final EventLoop loop = ctx.channel().eventLoop();
-		loop.schedule(new Runnable() {
-			@Override
-			public void run() {
+		if (reconnect) {
+			final EventLoop loop = ctx.channel().eventLoop();
+			loop.schedule(new Runnable() {
+				@Override
+				public void run() {
 					println("Reconnecting to: " + ctx.channel().remoteAddress());
 					client.configureBootstrap(new Bootstrap(), loop).connect();
-			}
-		}, Client.RECONNECT_DELAY, TimeUnit.SECONDS);
+				}
+			}, Client.RECONNECT_DELAY, TimeUnit.SECONDS);
+		}
 	}
 
 	@Override
@@ -49,7 +53,6 @@ public class ExceptionReconnectHandler extends SimpleChannelInboundHandler<Objec
 		println("Disconnected from: " + ctx.channel().remoteAddress());
 	}
 
-	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 			throws Exception {
@@ -60,7 +63,7 @@ public class ExceptionReconnectHandler extends SimpleChannelInboundHandler<Objec
 		cause.printStackTrace();
 		ctx.close();
 	}
-	
+
 	void println(String msg) {
 		if (startTime < 0) {
 			System.err.format("[SERVER IS DOWN] %s%n", msg);
@@ -69,7 +72,6 @@ public class ExceptionReconnectHandler extends SimpleChannelInboundHandler<Objec
 					(System.currentTimeMillis() - startTime) / 1000, msg);
 		}
 	}
-
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext arg0, Object arg1)

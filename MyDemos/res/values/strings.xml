@@ -32,6 +32,7 @@
     
 <!--     netty_telnet -->
     <string name="netty_telnet_send_message_button_str">发送消息</string>
+    <string name="start_push_button_text">start push service</string>
     
     
     
@@ -58,6 +59,7 @@
     <string name="picture_eidt">图片编辑</string>
     
     <string name="netty_telnet">netty_telnet</string>
+    <string name="netty_push">netty_推送/心跳</string>
     <string name="netty_chat">netty_chat</string>
 
 </resources>

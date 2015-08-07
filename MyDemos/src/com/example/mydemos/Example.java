@@ -11,6 +11,7 @@ import com.example.mydemos.customui.scrollactivity2.ScrollBackActivity2;
 import com.example.mydemos.customui.scrollactivity3.ViewPagerActivity;
 import com.example.mydemos.layout.relatvielayouttest.RelativeLayoutTestActivity;
 import com.example.mydemos.net.netty.chat.NettyChatActivity;
+import com.example.mydemos.net.netty.push.PushStartActivity;
 import com.example.mydemos.net.netty.telnet.NettyTelnetActivity;
 import com.example.mydemos.pics.PictureEditActivity;
 import com.example.mydemos.system.broadcastreceiver.RegUnregReceiverActivity;
@@ -38,7 +39,8 @@ enum Example {
 	RECEIVERREG(RegUnregReceiverActivity.class,R.string.receiver_reg),
 	PICEDIT(PictureEditActivity.class,R.string.picture_eidt),
 	NETTYCHAT(NettyChatActivity.class,R.string.netty_chat),
-	NETTYTELNET(NettyTelnetActivity.class,R.string.netty_telnet)
+	NETTYTELNET(NettyTelnetActivity.class,R.string.netty_telnet),
+	NETTYPUSH(PushStartActivity.class,R.string.netty_push)
 	;
 
 	public final Class<? extends Activity> CLASS;

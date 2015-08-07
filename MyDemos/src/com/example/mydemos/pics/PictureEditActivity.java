@@ -1,21 +1,18 @@
 package com.example.mydemos.pics;
 
-import com.example.mydemos.R;
-import com.example.util.ImageUtils;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import com.example.mydemos.R;
+import com.example.util.ImageUtils;
 
 public class PictureEditActivity extends Activity{
 	private ImageView ivPicEditImageview;

@@ -18,8 +18,8 @@ public class AppApplication extends Application{
 	public void onCreate() {
 		super.onCreate();
 		context=this;
-		Intent intent = new Intent(this,PushReceiverService.class);
-		startService(intent);
+	//	Intent intent = new Intent(this,PushReceiverService.class);
+	//	startService(intent);
 	}
 	
 	public static AppApplication getContext(){

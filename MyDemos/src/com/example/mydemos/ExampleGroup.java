@@ -23,7 +23,7 @@ public enum ExampleGroup {
 			Example.RECEIVERREG),
 	TIME(R.string.time,Example.USEALARMACTIVITY),
 	PIC(R.string.picture_eidt,Example.PICEDIT),
-	NET(R.string.net,Example.NETTYTELNET,Example.NETTYCHAT);
+	NET(R.string.net,Example.NETTYTELNET,Example.NETTYCHAT,Example.NETTYPUSH);
 	
 	public final Example[] mExamples;
 	public final int mNameResourceID;
