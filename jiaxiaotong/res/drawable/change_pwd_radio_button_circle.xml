@@ -1,8 +1,0 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval"
-    android:useLevel="false" >
-    <solid android:color="@color/main_status_green" />
-    <size
-        android:height="9dp"
-        android:width="9dp" />
-</shape>
