@@ -5,8 +5,11 @@
     android:versionName="1.0" >
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE"/>
-    
-    <uses-permission android:name="android.permission.INTERNET" />
+     <!-- SDCard中创建与删除文件权限 -->  
+  	<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+  	<!-- 向SDCard写入数据权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.INTERNET" />
     <uses-sdk
         android:minSdkVersion="11"
         android:targetSdkVersion="18" />
@@ -17,6 +20,9 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+         <activity
+            android:name="com.example.mydemos.other.CommonTest">
+        </activity>
         <activity
             android:name="com.example.mydemos.customui.scrollactivity.Activity1">
         </activity>
@@ -77,6 +83,8 @@
         <service android:name="com.example.mydemos.system.service.ServiceTest" >
         </service>
     	<service android:name="com.example.mydemos.net.netty.push.PushReceiverService" >
+        </service>
+    	<service android:name="com.example.mydemos.net.downloadqueue.DownloadService" >
         </service>
         
         <receiver android:name="com.example.mydemos.system.broadcastreceiver.ServiceStartReceiver" >

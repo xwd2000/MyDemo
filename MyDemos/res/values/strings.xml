@@ -47,6 +47,7 @@
     <string name="time">时间相关</string>   
     <string name="picture">图片相关</string>
     <string name="net">网络</string>
+    <string name="other">其他測試</string>
 
     
     <string name="layout">布局测试</string>
@@ -62,4 +63,7 @@
     <string name="netty_push">netty_推送/心跳</string>
     <string name="netty_chat">netty_chat</string>
 
+    
+    
+    <string name="common_test">通用测试</string>
 </resources>

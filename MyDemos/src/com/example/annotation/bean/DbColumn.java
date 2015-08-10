@@ -10,5 +10,5 @@ import com.example.mydemos.AppApplication;
 @Target(ElementType.FIELD)   //用于构造方法
 @Retention(RetentionPolicy.RUNTIME) //在运行时加载到Annotation到JVM中
 public @interface DbColumn {
-	String isColumn() default AppApplication.PUSH_HOST;
+	String columnName() default AppApplication.PUSH_HOST;
 }

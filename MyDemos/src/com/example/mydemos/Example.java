@@ -13,6 +13,7 @@ import com.example.mydemos.layout.relatvielayouttest.RelativeLayoutTestActivity;
 import com.example.mydemos.net.netty.chat.NettyChatActivity;
 import com.example.mydemos.net.netty.push.PushStartActivity;
 import com.example.mydemos.net.netty.telnet.NettyTelnetActivity;
+import com.example.mydemos.other.CommonTest;
 import com.example.mydemos.pics.PictureEditActivity;
 import com.example.mydemos.system.broadcastreceiver.RegUnregReceiverActivity;
 import com.example.mydemos.system.service.ServiceTestActivity;
@@ -40,7 +41,8 @@ enum Example {
 	PICEDIT(PictureEditActivity.class,R.string.picture_eidt),
 	NETTYCHAT(NettyChatActivity.class,R.string.netty_chat),
 	NETTYTELNET(NettyTelnetActivity.class,R.string.netty_telnet),
-	NETTYPUSH(PushStartActivity.class,R.string.netty_push)
+	NETTYPUSH(PushStartActivity.class,R.string.netty_push),
+	COMMONTEST(CommonTest.class,R.string.common_test)
 	;
 
 	public final Class<? extends Activity> CLASS;
