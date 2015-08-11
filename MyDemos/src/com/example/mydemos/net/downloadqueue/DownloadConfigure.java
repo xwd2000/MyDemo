@@ -27,9 +27,14 @@ public class DownloadConfigure {
 		threadPriority=builder.threadPriority;
 		taskExecutor = builder.taskExecutor;
 		savePathBase =  builder.savePathBase;
-		
 	}
 
+	public void deBuild(){
+		taskExecutor.shutdown();
+	}
+	
+	
+	
 	public static class Builder {
 		private static final String TAG = "DownLoadConfigure.Builder";
 		private static final String WARNING_OVERLAP_EXECUTOR="overlap taskExecutor()";

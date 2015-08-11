@@ -3,8 +3,10 @@ package com.example.mydemos.net.downloadqueue.bean;
 public class Job {
 	private String url;
 	private String savePath;
+	private String fileName;
 	private Integer status;
 	private Integer totalSize;
+	private Integer downloadedSize;
 	private Integer taskNum;
 	
 	public String getUrl() {
@@ -36,6 +38,18 @@ public class Job {
 	}
 	public void setTaskNum(Integer taskNum) {
 		this.taskNum = taskNum;
+	}
+	public String getFileName() {
+		return fileName;
+	}
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+	public Integer getDownloadedSize() {
+		return downloadedSize;
+	}
+	public void setDownloadedSize(Integer downloadedSize) {
+		this.downloadedSize = downloadedSize;
 	}
 
 	

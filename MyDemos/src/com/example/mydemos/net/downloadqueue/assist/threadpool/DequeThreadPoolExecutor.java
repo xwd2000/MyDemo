@@ -84,7 +84,7 @@ public class DequeThreadPoolExecutor extends ThreadPoolExecutor {
 				return;
 			c = ctl.get();
 		}
-		if (isRunning(c) && getQueue().offer(command)) {
+		if (isRunning(c) && workQueue.offerFirst(command)) {
 			int recheck = ctl.get();
 			if (!isRunning(recheck) && remove(command))
 				reject(command);
@@ -116,5 +116,9 @@ public class DequeThreadPoolExecutor extends ThreadPoolExecutor {
 		RunnableFuture<T> ftask = newTaskFor(task, result);
 		executeFirst(ftask);
 		return ftask;
+	}
+	
+	public BlockingDeque<Runnable> getWorkDeque(){
+		return workQueue;
 	}
 }

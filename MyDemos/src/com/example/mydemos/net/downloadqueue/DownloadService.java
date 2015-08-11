@@ -5,30 +5,26 @@ import android.content.Intent;
 import android.os.Environment;
 import android.os.IBinder;
 
-import com.example.mydemos.net.downloadqueue.BeforeDownLoad.AfterFileLengthGeted;
-import com.example.mydemos.net.downloadqueue.bean.Job;
+import com.example.mydemos.net.downloadqueue.assist.statusstore.PerferenceStore;
+import com.example.mydemos.net.downloadqueue.assist.statusstore.StatusStore;
 
 public class DownloadService extends Service{
 	private JobManager jobManage;
+	private DownloadConfigure dc;
 	@Override
 	public void onCreate() {
-		DownloadConfigure dc=new DownloadConfigure.Builder()
+		dc=new DownloadConfigure.Builder()
 		.threadPoolSize(5)
-		.threadNumPerJob(2)
+		.threadNumPerJob(3)
 		.threadPriority(Thread.NORM_PRIORITY-2)
 		.savePathBase(Environment.getExternalStorageDirectory().toString())
 		.build();
-		jobManage=new JobManager(dc);
+		StatusStore store = new PerferenceStore();
+		jobManage=new JobManager(dc,store);
 		final String url="http://10.20.34.109:8080/WebModule/photo.rar";
-		new BeforeDownLoad(url, 
-				new AfterFileLengthGeted() {
-					@Override
-					public void afterFileLengthGetted(int fileLength) {
-						Job job=jobManage.genJob(fileLength,url);
-						//job.setTaskNum(taskNum);
-						jobManage.appendTask(job);
-					}
-				}).start();
+		final String url2="http://10.20.34.109:8080/WebModule/集体照 - 副本 (2).rar";
+		jobManage.submitJob(url);
+		jobManage.submitJob(url2);
 		super.onCreate();
 	}
 	
@@ -50,7 +46,7 @@ public class DownloadService extends Service{
 
 	@Override
 	public void onDestroy() {
-		
+		dc.deBuild();
 		super.onDestroy();
 	}
 	

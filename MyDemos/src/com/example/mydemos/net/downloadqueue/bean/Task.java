@@ -1,6 +1,13 @@
 package com.example.mydemos.net.downloadqueue.bean;
 
 public class Task{
+
+	public static final int STATUS_INITING=0;
+	public static final int STATUS_RUNNING=1;
+	public static final int STATUS_FINISHED=2;
+	public static final int STATUS_ERROR=3;
+	
+	
 	private Integer currentPos;
 	private Integer byteStart;
 	private Integer byteEnd;

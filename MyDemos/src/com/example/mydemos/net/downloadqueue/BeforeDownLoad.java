@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 public class BeforeDownLoad extends Thread{
 	
@@ -22,6 +23,13 @@ public class BeforeDownLoad extends Thread{
 
 		
 		try {
+			String fileName=null;
+			try{
+				fileName = url.substring(url.lastIndexOf("/")+1);
+				url=url.substring(0, url.lastIndexOf("/")+1)+URLEncoder.encode(fileName, "utf-8").replaceAll("\\+", "%20");
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 			URL u = new URL(url);
 			HttpURLConnection urlcon = (HttpURLConnection) u.openConnection();
 			final int fileLength =  urlcon.getContentLength(); 
