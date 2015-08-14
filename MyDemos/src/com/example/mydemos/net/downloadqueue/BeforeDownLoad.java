@@ -5,12 +5,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class BeforeDownLoad extends Thread{
 	
 	private String url;
 	private AfterFileLengthGeted afterFileLengthGetted;
-	
+
 	
 	public BeforeDownLoad(String url,AfterFileLengthGeted afterFileLengthGetted) {
 		super();
@@ -20,8 +22,6 @@ public class BeforeDownLoad extends Thread{
 
 	@Override
 	public void run() {
-
-		
 		try {
 			String fileName=null;
 			try{

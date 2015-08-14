@@ -62,6 +62,8 @@
     <string name="netty_telnet">netty_telnet</string>
     <string name="netty_push">netty_推送/心跳</string>
     <string name="netty_chat">netty_chat</string>
+    <string name="net_download">下载队列</string>
+    <string name="download_add_download">添加下载</string>
 
     
     

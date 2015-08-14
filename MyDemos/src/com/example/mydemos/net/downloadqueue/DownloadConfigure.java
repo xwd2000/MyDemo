@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import android.util.Log;
 
 import com.example.mydemos.net.downloadqueue.assist.threadpool.DequeThreadPoolExecutor;
+import com.example.mydemos.net.downloadqueue.downloader.AbsTaskDownloader;
+import com.example.mydemos.net.downloadqueue.downloader.HttpComponentTaskDownloader;
 
 
 
@@ -20,6 +22,7 @@ public class DownloadConfigure {
 	final int threadPriority;
 	final DequeThreadPoolExecutor taskExecutor;
 	final String savePathBase;
+	final Class<? extends AbsTaskDownloader> downLoaderClass;
 	
 	private DownloadConfigure(final Builder builder) {
 		threadPoolSize=builder.threadPoolSize;
@@ -27,6 +30,8 @@ public class DownloadConfigure {
 		threadPriority=builder.threadPriority;
 		taskExecutor = builder.taskExecutor;
 		savePathBase =  builder.savePathBase;
+		downLoaderClass =  builder.downLoaderClass;
+		
 	}
 
 	public void deBuild(){
@@ -49,6 +54,8 @@ public class DownloadConfigure {
 		private int threadPriority = DEFAULT_THREAD_PRIORITY;
 		private DequeThreadPoolExecutor taskExecutor = null;
 		private String savePathBase = null;
+		private Class<? extends AbsTaskDownloader> downLoaderClass;
+		
 		/** Builds configured {@link DownLoadConfigure} object */
 		public DownloadConfigure build() {
 			initEmptyFieldsWithDefaultValues();
@@ -93,6 +100,13 @@ public class DownloadConfigure {
 			return this;
 		}
 		
+		public Builder downLoaderClass(Class<? extends AbsTaskDownloader> downLoaderClass) {
+			this.downLoaderClass = downLoaderClass;
+			return this;
+		}
+		
+		
+		
 		public Builder savePathBase(String path) {
 			this.savePathBase=path;
 			return this;
@@ -104,7 +118,9 @@ public class DownloadConfigure {
 			taskExecutor=new DequeThreadPoolExecutor(threadPoolSize, threadPoolSize,
 	                0L, TimeUnit.MILLISECONDS,
 	                new LinkedBlockingDeque<Runnable>(),createThreadFactory(threadPriority,"-download-"));
-			
+			if(this.downLoaderClass==null){
+				downLoaderClass = HttpComponentTaskDownloader.class;
+			}
 			
 		}
 	}

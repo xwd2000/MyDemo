@@ -4,8 +4,9 @@ public class Task{
 
 	public static final int STATUS_INITING=0;
 	public static final int STATUS_RUNNING=1;
-	public static final int STATUS_FINISHED=2;
-	public static final int STATUS_ERROR=3;
+	public static final int STATUS_STOP=2;
+	public static final int STATUS_FINISHED=3;
+	public static final int STATUS_ERROR=4;
 	
 	
 	private Integer currentPos;

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ProgressBar 
+        android:id="@+id/pb_download_process"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="60dp"/>
+    <TextView  
+        android:id="@+id/tv_download_process"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"/>
+	<Button
+	    android:id="@+id/bt_download_process"
+	    android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+	    />
+</RelativeLayout>

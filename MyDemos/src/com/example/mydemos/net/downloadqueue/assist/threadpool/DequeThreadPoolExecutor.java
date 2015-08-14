@@ -60,6 +60,8 @@ public class DequeThreadPoolExecutor extends ThreadPoolExecutor {
 	public void executeFirst(Runnable command) {
 		if (command == null)
 			throw new NullPointerException();
+		if(!workQueue.contains(command))
+			super.execute(command);
 		/*
 		 * Proceed in 3 steps:
 		 * 
@@ -92,6 +94,12 @@ public class DequeThreadPoolExecutor extends ThreadPoolExecutor {
 				addWorker(null, false);
 		} else if (!addWorker(command, false))
 			reject(command);
+	}
+	
+	@Override
+	public void execute(Runnable command) {
+		if(!workQueue.contains(command))
+			super.execute(command);
 	}
 
 	public <T> Future<T> submitFirst(Callable<T> task) {

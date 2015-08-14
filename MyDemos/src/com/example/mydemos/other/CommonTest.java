@@ -9,6 +9,8 @@ import com.example.mydemos.net.downloadqueue.DownloadService;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,7 +34,13 @@ public class CommonTest extends Activity{
 				new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startService(new Intent(CommonTest.this,DownloadService.class));
+				SharedPreferences sp = CommonTest.this.getSharedPreferences("perferenceStore",  MODE_PRIVATE);
+				Editor editor = sp.edit();//获取编辑器
+				editor.putString("job2", "asdasd");
+				editor.commit();
+				String ss=sp.getString("job2", "");
+				String sss=sp.getString("jobs", "");
+				System.out.println(11);
 			}
 		});
 		ll.addView(button);

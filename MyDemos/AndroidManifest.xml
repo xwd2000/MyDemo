@@ -76,8 +76,11 @@
         <activity 
             android:name="com.example.mydemos.net.netty.chat.NettyChatActivity" >
         </activity>
-           <activity 
+        <activity 
             android:name="com.example.mydemos.net.netty.push.PushStartActivity" >
+        </activity> 
+         <activity 
+            android:name="com.example.mydemos.net.downloadqueue.DownloadActicity" >
         </activity>
         <!-- 服务测试 -->
         <service android:name="com.example.mydemos.system.service.ServiceTest" >

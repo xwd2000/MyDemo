@@ -1,5 +1,8 @@
 package com.example.util;
 
+import java.util.List;
+import java.util.Locale;
+
 public class StringUtils {
 	
 	/**
@@ -54,7 +57,7 @@ public class StringUtils {
 		if(EmptyUtil.isEmpty(str)){
 			return "";
 		}
-		return str.substring(0,1).toUpperCase()+str.substring(1);
+		return str.substring(0,1).toUpperCase(Locale.US)+str.substring(1);
 	}
 	/**
 	 * 首字母小写
@@ -89,7 +92,7 @@ public class StringUtils {
 	 * @param splitStr 分隔符 
 	 * @return 空字符转如果输入数组为空
 	 */
-	public static String join(String[] strs,String splitStr){
+	public static String join(Object[] strs,String splitStr){
 		Args.check(strs!=null, "join 输入数组为空");
 		if(splitStr==null){
 			splitStr = ",";
@@ -107,9 +110,31 @@ public class StringUtils {
 	 * @param strs 需要处理的字符转,分隔符 为"," 
 	 * @return 空字符转如果输入数组为空
 	 */
-	public static String join(String[] strs){
+	public static String join(Object[] strs){
 		return join(strs,",");
 	}
+	
+	/**
+	 * 将字符数字转转化为分隔符分隔的一个字符转
+	 * @param objList 需要处理的字符转,分隔符 为"," 
+	 * @return 空字符转如果输入数组为空
+	 */
+	public static String join(List<?> objList){
+		return join(objList.toArray(),",");
+	}
+	
+	/**
+	 * 将字符数字转转化为分隔符分隔的一个字符转
+	 * @param objList 需要处理的字符转
+	 * @param splitStr 分隔符 
+	 * @return 空字符转如果输入数组为空
+	 */
+	public static String join(List<?> objList,String splitStr){
+		return join(objList.toArray(),splitStr);
+	}
+	
+	
+	
 	
 	public static void main(String[] args){
 		System.out.println(underLine2Camel("asd_sdfKK"));

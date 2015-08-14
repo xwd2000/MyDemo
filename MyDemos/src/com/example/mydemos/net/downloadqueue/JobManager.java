@@ -3,25 +3,38 @@ package com.example.mydemos.net.downloadqueue;
 import java.io.File;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.example.mydemos.net.downloadqueue.BeforeDownLoad.AfterFileLengthGeted;
-import com.example.mydemos.net.downloadqueue.assist.statusstore.StatusStore;
 import com.example.mydemos.net.downloadqueue.bean.Job;
 import com.example.mydemos.net.downloadqueue.bean.Task;
 import com.example.mydemos.net.downloadqueue.downloader.AbsTaskDownloader;
 import com.example.mydemos.net.downloadqueue.downloader.HttpComponentTaskDownloader;
+import com.example.mydemos.net.downloadqueue.statusstore.JobMemeryStore;
+import com.example.mydemos.net.downloadqueue.statusstore.StatusStore;
+import com.example.util.EmptyUtil;
 
 public class JobManager {
 	private TaskManager taskManager;
 	private DownloadConfigure config;
 	private TaskObserver observer;
+	private StatusStore store;
+	private JobMemeryStore jobInMemery;
 
 	public JobManager(DownloadConfigure config,StatusStore store) {
 		super();
 		this.config = config;
-		this.taskManager = new TaskManager(config.taskExecutor);
-		this.observer=new TaskObserver(store,taskManager);
+		this.taskManager = new TaskManager(config.taskExecutor,config.downLoaderClass);
+		this.store=store;
+		jobInMemery=new JobMemeryStore();
+		this.observer=new TaskObserver(store,taskManager,jobInMemery);
+		
 	}
 
 	public Job genJob(int totalSize,String urlStr){
@@ -43,6 +56,7 @@ public class JobManager {
 		job.setTaskNum(taskNum);
 		job.setFileName(fileName);
 		job.setDownloadedSize(0);
+		job.setStatus(Job.STATUS_CREATED);
 		job.setUrl(urlStr);
 		return job;
 	}
@@ -78,7 +92,7 @@ public class JobManager {
 			nowStart += threadDownloadSize;
 			Task task = new Task();
 			task.setByteStart(start);
-			task.setByteEnd(end);
+			task.setByteEnd(end-1);
 			task.setCurrentPos(start);
 			task.setJob(job);
 			task.setStatus(Task.STATUS_INITING);
@@ -100,38 +114,94 @@ public class JobManager {
 	 * the param job mast has all fields complete
 	 * @param job
 	 */
-	public void appendJob(Job job){
-		for(Task task:splitJobToTask(job)){
-			AbsTaskDownloader dl = new HttpComponentTaskDownloader();
-			dl.setTask(task);
-			dl.addObserver(observer);
-			taskManager.addDownloaderTask(dl);
+	private void appendJob(Job job){
+		List<Task> jobTasks = splitJobToTask(job);
+		job.setTasks(jobTasks);
+		store.storeJob(job);
+		jobInMemery.add(job);
+		for(Task task:jobTasks){
+			taskManager.addTask(task, observer);
+			store.storeTask(job, task);
 		}
 	}
 	
 	/**
-	 * the param job mast has all fields complete
+	 * the parameter job mast has all fields complete
 	 * @param job
 	 */
-	public void appFirstJob(Job job) {
-		for(Task task:splitJobToTask(job)){
-			AbsTaskDownloader dl = new HttpComponentTaskDownloader();
-			dl.setTask(task);
-			dl.addObserver(observer);
-			taskManager.addFirstDownloaderTask(dl);
+	private void appFirstJob(Job job) {
+		List<Task> jobTasks = splitJobToTask(job);
+		job.setTasks(jobTasks);
+		for(Task task:jobTasks){
+			taskManager.addTask(task, observer);
 		}
 	}
+
 	
-	
-	public void submitJob(final String url){
+	public Job newSubmitJob(final String url,final OnJobStatusChangeListener onJobStatusChange){
+		final Job job=genJob(0,url);
+		
 		new BeforeDownLoad(url, 
 				new AfterFileLengthGeted() {
 					@Override
 					public void afterFileLengthGetted(int fileLength) {
-						Job job=genJob(fileLength,url);
+						job.setTotalSize(fileLength);
+						job.setTaskNum(getJobTaskCountByJobFileSize(fileLength));
 						//job.setTaskNum(taskNum);
+						if(onJobStatusChange!=null){
+							observer.addJobListener(job,onJobStatusChange);
+						}
 						appendJob(job);
+						
 					}
 				}).start();
+		
+		return job;
+	}
+	public Job newSubmitJob(final String url){
+		return newSubmitJob(url,null);
+	}
+	
+	public void addJobListener(Job job,OnJobStatusChangeListener onJobStatusChange){
+		observer.addJobListener(job,onJobStatusChange);
+	}
+	
+	public JobMemeryStore getJobMemeryStore(){
+		return jobInMemery;
+	}
+	
+	public void removeJob(Job job){
+		
+	}
+	
+	public void recoveryJob(Job job,OnJobStatusChangeListener onJobStatusChange){
+			job.setStatus(Job.STATUS_RECREATED);
+			List<Task> jobTaskList=store.getJobTasks(job);
+			if(EmptyUtil.isEmpty(jobTaskList)){
+				newSubmitJob(job.getUrl(),onJobStatusChange);
+			}else{
+				for(int j=0;j<jobTaskList.size();j++){
+					taskManager.addTask(jobTaskList.get(j), observer);
+				}
+				observer.addJobListener(job,onJobStatusChange);
+			}
+		
+	}
+	public void continueJob(Job job){
+		job.setStatus(Job.STATUS_RECREATED);
+		List<Task> jobTaskList=store.getJobTasks(job);
+		for(int j=0;j<jobTaskList.size();j++){
+			taskManager.addTask(jobTaskList.get(j), observer);
+		}
+	}
+	
+	
+	public interface OnJobStatusChangeListener{
+		public void onJobInited(Job job);
+		public void onJobStart(Job job);
+		public void onJobProcessUpdated(Job job,int process);
+		public void onJobStop(Job job);
+		public void onJobfinished(Job job);
+		public void onJobError(Job job);
 	}
 }

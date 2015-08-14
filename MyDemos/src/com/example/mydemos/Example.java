@@ -10,6 +10,7 @@ import com.example.mydemos.customui.scrollactivity.Activity1;
 import com.example.mydemos.customui.scrollactivity2.ScrollBackActivity2;
 import com.example.mydemos.customui.scrollactivity3.ViewPagerActivity;
 import com.example.mydemos.layout.relatvielayouttest.RelativeLayoutTestActivity;
+import com.example.mydemos.net.downloadqueue.DownloadActicity;
 import com.example.mydemos.net.netty.chat.NettyChatActivity;
 import com.example.mydemos.net.netty.push.PushStartActivity;
 import com.example.mydemos.net.netty.telnet.NettyTelnetActivity;
@@ -42,7 +43,10 @@ enum Example {
 	NETTYCHAT(NettyChatActivity.class,R.string.netty_chat),
 	NETTYTELNET(NettyTelnetActivity.class,R.string.netty_telnet),
 	NETTYPUSH(PushStartActivity.class,R.string.netty_push),
+	DOWNLOAD(DownloadActicity.class,R.string.net_download),
+	
 	COMMONTEST(CommonTest.class,R.string.common_test)
+	
 	;
 
 	public final Class<? extends Activity> CLASS;
