@@ -1,16 +1,10 @@
 package com.example.mydemos.other;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import com.example.mydemos.net.downloadqueue.DownloadService;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,6 +12,10 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.mydemos.system.perference.SharePerferencesUtils;
+import com.example.util.StringUtils;
 
 public class CommonTest extends Activity{
 	@Override
@@ -34,45 +32,25 @@ public class CommonTest extends Activity{
 				new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				SharedPreferences sp = CommonTest.this.getSharedPreferences("perferenceStore",  MODE_PRIVATE);
-				Editor editor = sp.edit();//获取编辑器
-				editor.putString("job2", "asdasd");
-				editor.commit();
-				String ss=sp.getString("job2", "");
-				String sss=sp.getString("jobs", "");
-				System.out.println(11);
+				SharePerferencesUtils u=new SharePerferencesUtils("aa",CommonTest.this);
+				u.put("00000", new HashSet<String>(Arrays.asList("123","234","435")));
+				Set<String> s=(HashSet<String>)u.get("00000");
+				
+				toast(""+StringUtils.join(s.toArray()));
+				
+				
 			}
 		});
 		ll.addView(button);
 		ll.setOrientation(LinearLayout.VERTICAL);
 		setContentView(ll);
 		
-		(new Thread(){
-			@Override
-			public void run() {
-				URL u;
-				try {
-					u = new URL("http://10.20.34.109:8080/WebModule/photo.rar");
-					HttpURLConnection urlcon = (HttpURLConnection) u.openConnection();
-					final int fileLength =  urlcon.getContentLength(); 
-					runOnUiThread(new Runnable() {
-						
-						@Override
-						public void run() {
-							tv.setText("获取http://10.20.34.109:8080/WebModule/photo.rar文件大小:\n"+fileLength+"");
-							
-						}
-					});
-				} catch (MalformedURLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			}
-		}).start();
+		
 		super.onCreate(savedInstanceState);
+	}
+	
+	
+	public void toast(String msg){
+		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 	}
 }
